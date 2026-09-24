@@ -46,7 +46,8 @@ Most organisers sort one file at a time by extension or by an AI label. Neat und
 - Keyboard-first: every review action has a shortcut. Mouse users get large, obvious action buttons.
 - Technical detail (full paths, hashes, rule syntax) is hidden by default and shown on demand.
 - Local AI is optional and later; deterministic logic first.
-- Open decisions: distribution, sharing rules between machines.
+- Distribution: a per-user Windows installer built by CI; not code-signed yet, so SmartScreen warns on install.
+- Open decisions: code signing, sharing rules between machines.
 
 ## Brand Commitments
 

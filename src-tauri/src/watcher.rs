@@ -68,6 +68,7 @@ pub fn rescan(app: &AppHandle, neat: &Mutex<Neat>) {
         Err(_) => return,
     };
     if let Ok(inbox) = inbox {
+        crate::update_tray(app, &inbox);
         let _ = app.emit(INBOX_CHANGED, &inbox);
     }
 }

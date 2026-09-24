@@ -33,8 +33,22 @@ fn with<T>(state: &State<'_, AppState>, f: impl FnOnce(&mut Neat) -> neat_core::
 // `async` keeps file work off the window's main thread.
 
 #[tauri::command(async)]
-fn scan(state: State<'_, AppState>) -> CommandResult<Inbox> {
-    with(&state, |neat| neat.scan())
+fn scan(app: AppHandle, state: State<'_, AppState>) -> CommandResult<Inbox> {
+    let inbox = with(&state, |neat| neat.scan())?;
+    update_tray(&app, &inbox);
+    Ok(inbox)
+}
+
+/// The tray tooltip says whether a visit is worth it: "Neat: 5 groups to review".
+pub(crate) fn update_tray(app: &AppHandle, inbox: &Inbox) {
+    let tooltip = match inbox.stacks.len() {
+        0 => "Neat: Downloads is tidy".to_string(),
+        1 => "Neat: 1 group to review".to_string(),
+        n => format!("Neat: {n} groups to review"),
+    };
+    if let Some(tray) = app.tray_by_id("neat") {
+        let _ = tray.set_tooltip(Some(tooltip));
+    }
 }
 
 #[tauri::command(async)]
