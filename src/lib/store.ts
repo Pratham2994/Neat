@@ -8,7 +8,8 @@ export type View = "inbox" | "activity" | "rules" | "settings";
 // A short message in the status strip. `undo` lists the activity entries it reverts.
 export interface Notice {
   id: number;
-  message: string;
+  message: string; // the headline, shown in medium weight
+  detail?: string; // what else to know, or how to recover
   tone: "done" | "error";
   undo?: string[];
 }
@@ -45,9 +46,9 @@ type Action =
   | { type: "scanning"; on: boolean }
   | { type: "removing"; ids: string[] }
   | { type: "applied"; ids: string[]; outcome: Outcome; message: string }
-  | { type: "failed"; ids: string[]; message: string }
+  | { type: "failed"; ids: string[]; message: string; detail: string }
   | { type: "undone"; outcome: Outcome; message: string }
-  | { type: "notice"; message: string; tone: Notice["tone"] }
+  | { type: "notice"; message: string; detail?: string; tone: Notice["tone"] }
   | { type: "dismissNotice"; id: number }
   | { type: "dismissAway" };
 
@@ -108,11 +109,17 @@ function reselect(previous: Stack[], next: Stack[], selectedId: string | null): 
   return next[Math.min(index, next.length - 1)]?.id ?? null;
 }
 
-function skippedText(outcome: Outcome): string {
+function skippedText(outcome: Outcome): string | undefined {
   const n = outcome.skipped.length;
-  if (n === 0) return "";
+  if (n === 0) return undefined;
   const reasons = [...new Set(outcome.skipped.map((s) => s.reason.toLowerCase()))];
-  return ` ${plural(n, "file")} left alone: ${reasons.join("; ")}.`;
+  return `${plural(n, "file")} left alone (${reasons.join("; ")}). They stay in the inbox.`;
+}
+
+// Errors: what failed, what to do next, then the core's reason. The recovery comes before the reason
+// so a long system message cannot push it out of the one-line status strip.
+function failure(what: string, error: unknown, recovery: string) {
+  return { message: what, detail: `${recovery} ${errorText(error).replace(/\.$/, "")}.` };
 }
 
 function initialState(): State {
@@ -220,7 +227,8 @@ function reducer(state: State, action: Action): State {
         activity: mergeActivity(state.activity, action.outcome.entries),
         notice: {
           id: noticeId++,
-          message: action.message + skippedText(action.outcome),
+          message: action.message,
+          detail: skippedText(action.outcome),
           tone: "done",
           undo: action.outcome.entries.map((e) => e.id),
         },
@@ -236,18 +244,23 @@ function reducer(state: State, action: Action): State {
         stacks.splice(Math.min(item.index, stacks.length), 0, item.stack);
         delete pending[id];
       }
-      return { ...state, stacks, pending, notice: { id: noticeId++, message: action.message, tone: "error" } };
+      return {
+        ...state,
+        stacks,
+        pending,
+        notice: { id: noticeId++, message: action.message, detail: action.detail, tone: "error" },
+      };
     }
 
     case "undone":
       return {
         ...state,
         activity: mergeActivity(state.activity, action.outcome.entries),
-        notice: { id: noticeId++, message: action.message + skippedText(action.outcome), tone: "done" },
+        notice: { id: noticeId++, message: action.message, detail: skippedText(action.outcome), tone: "done" },
       };
 
     case "notice":
-      return { ...state, notice: { id: noticeId++, message: action.message, tone: action.tone } };
+      return { ...state, notice: { id: noticeId++, message: action.message, detail: action.detail, tone: action.tone } };
 
     case "dismissNotice":
       return state.notice?.id === action.id ? { ...state, notice: null } : state;
@@ -277,7 +290,11 @@ export function useNeat() {
       dispatch({ type: "inbox", inbox });
       return inbox;
     } catch (error) {
-      dispatch({ type: "notice", message: `Could not scan Downloads: ${errorText(error)}`, tone: "error" });
+      dispatch({
+        type: "notice",
+        ...failure("Couldn\u2019t read Downloads.", error, "Press Scan now to try again."),
+        tone: "error",
+      });
       return null;
     } finally {
       dispatch({ type: "scanning", on: false });
@@ -336,7 +353,11 @@ export function useNeat() {
         if (always) void refreshRules();
         if (outcome.skipped.length > 0) void refreshInbox();
       } catch (error) {
-        dispatch({ type: "failed", ids: [id], message: errorText(error) });
+        dispatch({
+          type: "failed",
+          ids: [id],
+          ...failure("Couldn\u2019t apply that.", error, "Neat read Downloads again; try once more."),
+        });
         void refreshInbox();
       }
     },
@@ -355,7 +376,11 @@ export function useNeat() {
       dispatch({ type: "applied", ids, outcome, message });
       if (outcome.skipped.length > 0) void refreshInbox();
     } catch (error) {
-      dispatch({ type: "failed", ids, message: errorText(error) });
+      dispatch({
+        type: "failed",
+        ids,
+        ...failure("Couldn\u2019t apply the suggestions.", error, "Neat read Downloads again; try once more."),
+      });
       void refreshInbox();
     }
   }, [refreshInbox]);
@@ -382,7 +407,11 @@ export function useNeat() {
         const back = inbox?.stacks.find((s) => restored.some((e) => e.title === s.title));
         if (back) dispatch({ type: "select", id: back.id });
       } catch (error) {
-        dispatch({ type: "notice", message: errorText(error), tone: "error" });
+        dispatch({
+          type: "notice",
+          ...failure("Couldn\u2019t undo that.", error, "The Activity tab lists every change; try it from there."),
+          tone: "error",
+        });
       }
     },
     [refreshInbox, refreshRules],
@@ -398,7 +427,11 @@ export function useNeat() {
       dispatch({ type: "undone", outcome, message: `Moved ${plural(files, "file")} back to Downloads` });
       await refreshInbox();
     } catch (error) {
-      dispatch({ type: "notice", message: errorText(error), tone: "error" });
+      dispatch({
+        type: "notice",
+        ...failure("Couldn\u2019t move those files back.", error, "The Activity tab lists every change; try it from there."),
+        tone: "error",
+      });
     }
   }, [refreshInbox]);
 
@@ -410,7 +443,11 @@ export function useNeat() {
       try {
         await backend.setRuleEnabled(id, !rule.enabled);
       } catch (error) {
-        dispatch({ type: "notice", message: errorText(error), tone: "error" });
+        dispatch({
+          type: "notice",
+          ...failure("Couldn\u2019t change the rule.", error, "It is back as it was; try again."),
+          tone: "error",
+        });
         void refreshRules();
       }
     },
@@ -426,7 +463,11 @@ export function useNeat() {
       if (change.startAtLogin !== undefined) await backend.setStartAtLogin(change.startAtLogin);
     } catch (error) {
       dispatch({ type: "settings", settings: current });
-      dispatch({ type: "notice", message: errorText(error), tone: "error" });
+      dispatch({
+        type: "notice",
+        ...failure("Couldn\u2019t change that setting.", error, "It is back as it was; try again."),
+        tone: "error",
+      });
     }
   }, []);
 

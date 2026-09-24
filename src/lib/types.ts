@@ -33,6 +33,7 @@ export interface Stack {
   confidence: Confidence;
   evidence: Evidence[];
   files: FileItem[];
+  canLearn: boolean; // whether "Always move files like these" can become a rule
 }
 
 export interface ActivityEntry {

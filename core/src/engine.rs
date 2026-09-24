@@ -43,7 +43,9 @@ CREATE TABLE IF NOT EXISTS operations (
     to_path TEXT,
     size INTEGER NOT NULL
 );
-CREATE TABLE IF NOT EXISTS dismissed (stack_id TEXT PRIMARY KEY, activity_id INTEGER NOT NULL);
+-- Files the user chose to keep, by path. Keeping is per file, so a new download joining a group
+-- does not bring back files already kept.
+CREATE TABLE IF NOT EXISTS kept (path TEXT PRIMARY KEY, activity_id INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS rules (
     id INTEGER PRIMARY KEY,
     condition TEXT NOT NULL,
@@ -123,9 +125,9 @@ impl Neat {
             self.run_rules()?;
         }
         let entries = scan::scan(&self.root)?;
-        let dismissed = self.dismissed()?;
-        let ctx = Context { now: SystemTime::now(), installed: &self.installed };
-        let stacks: Vec<Stack> = detect::detect(&entries, &ctx).into_iter().filter(|s| !dismissed.contains(&s.id)).collect();
+        let kept = self.kept()?;
+        let ctx = Context { now: SystemTime::now(), installed: &self.installed, kept: &kept };
+        let stacks: Vec<Stack> = detect::detect(&entries, &ctx);
         self.stacks = stacks.iter().map(|s| (s.id.clone(), s.clone())).collect();
         Ok(Inbox {
             stacks,
@@ -140,10 +142,10 @@ impl Neat {
         })
     }
 
-    fn dismissed(&self) -> Result<HashSet<String>> {
-        let mut stmt = self.db.prepare("SELECT stack_id FROM dismissed")?;
-        let ids = stmt.query_map([], |r| r.get(0))?.collect::<rusqlite::Result<HashSet<String>>>()?;
-        Ok(ids)
+    fn kept(&self) -> Result<HashSet<PathBuf>> {
+        let mut stmt = self.db.prepare("SELECT path FROM kept")?;
+        let paths = stmt.query_map([], |r| r.get::<_, String>(0))?.collect::<rusqlite::Result<Vec<_>>>()?;
+        Ok(paths.into_iter().map(PathBuf::from).collect())
     }
 
     /// Applies one decision to one group from the last scan.
@@ -195,10 +197,12 @@ impl Neat {
             ActionKind::Keep => {
                 count = stack.files.len() as u64;
                 bytes = stack.files.iter().map(|f| f.size).sum();
-                self.db.execute(
-                    "INSERT OR REPLACE INTO dismissed (stack_id, activity_id) VALUES (?1, ?2)",
-                    params![stack.id, activity_id],
-                )?;
+                for file in &stack.files {
+                    self.db.execute(
+                        "INSERT OR REPLACE INTO kept (path, activity_id) VALUES (?1, ?2)",
+                        params![file.id, activity_id],
+                    )?;
+                }
             }
             ActionKind::Move | ActionKind::Recycle => {
                 for file in stack.affected() {
@@ -305,7 +309,7 @@ impl Neat {
             }
             match action.as_str() {
                 "keep" => {
-                    self.db.execute("DELETE FROM dismissed WHERE activity_id = ?1", [id])?;
+                    self.db.execute("DELETE FROM kept WHERE activity_id = ?1", [id])?;
                 }
                 "rule" => {
                     if let Some(rule_id) = rule_id {

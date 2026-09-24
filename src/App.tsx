@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, MotionConfig } from "motion/react";
-import { ArrowDown, ArrowUp, Check, CircleAlert } from "lucide-react";
+import { ArrowDown, ArrowUp, Check } from "lucide-react";
 import { Activity } from "./components/Activity";
 import { Inbox } from "./components/Inbox";
 import { Rules } from "./components/Rules";
@@ -154,7 +154,8 @@ export default function App() {
         <StatusBar
           state={state}
           notice={state.notice}
-          showKeys={state.view === "inbox" && state.stacks.length > 0}
+          // The key legend steps aside while an error is showing, so the whole message fits.
+          showKeys={state.view === "inbox" && state.stacks.length > 0 && state.notice?.tone !== "error"}
           onUndo={(ids) => void actions.undo(ids)}
         />
       </div>
@@ -208,7 +209,7 @@ function TopBar({
         </nav>
         <div className="ml-auto self-center">
           <Button variant="ghost" onClick={onScan} disabled={scanning}>
-            {scanning ? "Scanning Downloads" : "Scan now"}
+            Scan now
           </Button>
         </div>
       </div>
@@ -243,13 +244,11 @@ function StatusBar({
                 role={notice.tone === "error" ? "alert" : "status"}
                 className="flex items-center gap-2.5"
               >
-                {notice.tone === "error" ? (
-                  <CircleAlert size={13} strokeWidth={2.2} className="shrink-0 text-brick" />
-                ) : (
-                  <Check size={13} strokeWidth={2.2} className="shrink-0 text-cobalt" />
-                )}
-                <span className="truncate text-[13px] text-ink" title={notice.message}>
-                  {notice.message}
+                {/* Errors carry no mark and no colour: brick means recycle, and the words say what happened. */}
+                {notice.tone === "done" && <Check size={13} strokeWidth={2.2} className="shrink-0 text-cobalt" />}
+                <span className="truncate text-[13px]" title={[notice.message, notice.detail].filter(Boolean).join(" ")}>
+                  <span className="font-medium text-ink">{notice.message}</span>
+                  {notice.detail && <span className="text-ink-2"> {notice.detail}</span>}
                 </span>
                 {notice.undo && (
                   <button
@@ -275,7 +274,7 @@ function StatusBar({
                 </span>
                 <span aria-hidden>·</span>
                 {state.scanning ? (
-                  <span>Scanning</span>
+                  <span>Reading</span>
                 ) : (
                   <span className="flex items-center gap-1.5">
                     {folder.watching && <span className="size-1.5 rounded-full bg-cobalt" />}
@@ -286,7 +285,9 @@ function StatusBar({
                 <span>Scanned {relativeTime(folder.lastScan)}</span>
               </motion.div>
             ) : (
-              <span key="loading">Reading Downloads</span>
+              <span key="loading" className="text-ink-2">
+                Downloads
+              </span>
             )}
           </AnimatePresence>
         </div>

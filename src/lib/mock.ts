@@ -17,6 +17,7 @@ export const mockStacks: Stack[] = [
     kind: "installers",
     title: "Installers for apps you already have",
     summary: "Figma, VS Code, Python, Zoom, Discord",
+    canLearn: false,
     action: "recycle",
     confidence: "high",
     evidence: [
@@ -51,6 +52,7 @@ export const mockStacks: Stack[] = [
     kind: "category",
     title: "Receipts and invoices",
     summary: "From amazon.in, flipkart.com, swiggy.com",
+    canLearn: true,
     action: "move",
     destination: "Finance/Receipts",
     confidence: "medium",
@@ -76,6 +78,7 @@ export const mockStacks: Stack[] = [
     kind: "duplicates",
     title: "Same file, downloaded 3 times",
     summary: "Semester 5 Timetable.pdf",
+    canLearn: false,
     action: "recycle",
     confidence: "high",
     evidence: [
@@ -114,6 +117,7 @@ export const mockStacks: Stack[] = [
     kind: "versions",
     title: "DBMS Project Report, 4 versions",
     summary: "report, report (1), report_final, report_final_v2",
+    canLearn: true,
     action: "move",
     destination: "University/DBMS Project",
     confidence: "medium",
@@ -141,6 +145,7 @@ export const mockStacks: Stack[] = [
     kind: "archive",
     title: "Archive already extracted",
     summary: "brand-assets.zip and its folder",
+    canLearn: false,
     action: "recycle",
     confidence: "high",
     evidence: [
@@ -158,6 +163,7 @@ export const mockStacks: Stack[] = [
     kind: "category",
     title: "Wallpapers and images",
     summary: "4 images from unsplash.com and pexels.com",
+    canLearn: true,
     action: "move",
     destination: "Images",
     confidence: "medium",
@@ -174,6 +180,7 @@ export const mockStacks: Stack[] = [
     kind: "partial",
     title: "Unfinished downloads",
     summary: "2 downloads the browser never completed",
+    canLearn: false,
     action: "recycle",
     confidence: "high",
     evidence: [{ text: "The browser stopped these downloads" }, { text: "No change in 3 weeks" }],
@@ -187,6 +194,7 @@ export const mockStacks: Stack[] = [
     kind: "stale",
     title: "Large files not opened in 6 months",
     summary: "ubuntu-24.04.3-desktop-amd64.iso and 2 videos",
+    canLearn: false,
     action: "recycle",
     confidence: "low",
     evidence: [

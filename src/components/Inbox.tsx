@@ -75,32 +75,7 @@ export function Inbox(props: Props) {
             <Skeleton />
           ) : stacks.length > 0 ? (
             <div role="table" aria-label="Groups to review" className="mt-6">
-              <div
-                role="row"
-                className={cx(
-                  COLUMNS,
-                  "sticky top-0 z-10 border-b border-rule-strong bg-ground px-3 pb-2 text-[12px] text-ink-3",
-                )}
-              >
-                <span role="columnheader" className="pl-5">
-                  Group
-                </span>
-                <span role="columnheader" className={WIDE_ONLY}>
-                  From
-                </span>
-                <span role="columnheader" className="text-right">
-                  Files
-                </span>
-                <span role="columnheader" className="text-right">
-                  Size
-                </span>
-                <span role="columnheader" className={WIDE_ONLY}>
-                  <span className="sr-only">Confidence</span>
-                </span>
-                <span role="columnheader" className="pl-0.5">
-                  Action
-                </span>
-              </div>
+              <TableHeader />
               <AnimatePresence initial={false}>
                 {stacks.map((stack) => (
                   <Row
@@ -371,7 +346,7 @@ function Details({ stack, always, onAlways }: { stack: Stack; always: boolean; o
             ))}
           </ul>
           <p className="mt-3 text-[12px] text-ink-3">{confidenceText[stack.confidence]}</p>
-          {stack.action === "move" && (
+          {stack.canLearn && (
             <label className="mt-3 flex items-center gap-2 text-[12px] text-ink-2">
               <input type="checkbox" checked={always} onChange={(e) => onAlways(e.target.checked)} className="peer sr-only" />
               <span
@@ -470,16 +445,53 @@ function Done({ done, onUndo }: { done: { entry: ActivityEntry; stack?: Stack }[
   );
 }
 
+function TableHeader() {
+  return (
+    <div
+      role="row"
+      className={cx(COLUMNS, "sticky top-0 z-10 border-b border-rule-strong bg-ground px-3 pb-2 text-[12px] text-ink-3")}
+    >
+      <span role="columnheader" className="pl-5">
+        Group
+      </span>
+      <span role="columnheader" className={WIDE_ONLY}>
+        From
+      </span>
+      <span role="columnheader" className="text-right">
+        Files
+      </span>
+      <span role="columnheader" className="text-right">
+        Size
+      </span>
+      <span role="columnheader" className={WIDE_ONLY}>
+        <span className="sr-only">Confidence</span>
+      </span>
+      <span role="columnheader" className="pl-0.5">
+        Action
+      </span>
+    </div>
+  );
+}
+
+// While the first read runs, the manifest shows its own header and ruled rows at their real columns,
+// so nothing shifts when the groups arrive. Static: the subtitle says what is happening.
 function Skeleton() {
   return (
-    <div aria-hidden className="mt-6 border-t border-rule-strong">
+    <div aria-hidden className="mt-6">
+      <TableHeader />
       {[0.62, 0.48, 0.55].map((w, i) => (
-        <div key={i} className="flex items-center gap-4 border-b border-rule px-3 py-4 pl-8">
-          <div className="min-w-0 flex-1 space-y-2">
-            <div className="h-3 animate-pulse rounded-[2px] bg-rule-strong" style={{ width: `${w * 60}%` }} />
-            <div className="h-2.5 animate-pulse rounded-[2px] bg-rule" style={{ width: `${w * 90}%` }} />
-          </div>
-          <div className="h-[30px] w-[188px] animate-pulse rounded-[4px] border border-rule" />
+        <div key={i} className={cx(COLUMNS, "border-b border-rule px-3 py-3")}>
+          <span className="space-y-2 pl-5">
+            <span className="block h-2.5 rounded-[2px] bg-rule-strong" style={{ width: `${w * 70}%` }} />
+            <span className="block h-2 rounded-[2px] bg-rule" style={{ width: `${w * 100}%` }} />
+          </span>
+          <span className={cx(WIDE_ONLY, "block h-2 w-3/4 rounded-[2px] bg-rule")} />
+          <span />
+          <span />
+          <span className={WIDE_ONLY} />
+          <span className={SLOTS}>
+            <span className="h-[30px] rounded-[4px] border border-rule" />
+          </span>
         </div>
       ))}
     </div>

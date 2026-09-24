@@ -9,7 +9,7 @@ use crate::scan::{self, Entry};
 use crate::util::{fmt_bytes, month_year, plural, rfc3339};
 use regex::Regex;
 use std::collections::{BTreeMap, HashMap, HashSet};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
 use std::time::SystemTime;
 
@@ -25,13 +25,16 @@ const STALE_MIN_BYTES: u64 = 500 * 1024 * 1024;
 pub struct Context<'a> {
     pub now: SystemTime,
     pub installed: &'a [InstalledApp],
+    /// Files the user chose to keep. They are never suggested again.
+    pub kept: &'a HashSet<PathBuf>,
 }
 
 pub fn detect(entries: &[Entry], ctx: &Context) -> Vec<Stack> {
     let mut used = HashSet::new();
     // Anything still changing is left alone this round.
     for (i, e) in entries.iter().enumerate() {
-        if e.age_secs(ctx.now) < SETTLE_SECS || (names::is_partial(&e.ext) && e.age_secs(ctx.now) < ABANDONED_SECS) {
+        let settling = e.age_secs(ctx.now) < SETTLE_SECS || (names::is_partial(&e.ext) && e.age_secs(ctx.now) < ABANDONED_SECS);
+        if settling || ctx.kept.contains(&e.path) {
             used.insert(i);
         }
     }
@@ -43,6 +46,9 @@ pub fn detect(entries: &[Entry], ctx: &Context) -> Vec<Stack> {
     stacks.extend(versions(entries, &mut used));
     stacks.extend(stale(entries, ctx, &mut used));
     stacks.extend(categories(entries, &mut used));
+    for s in &mut stacks {
+        s.can_learn = s.action == ActionKind::Move && crate::rules::condition_for(s).is_some();
+    }
     stacks
 }
 
@@ -76,7 +82,7 @@ fn stack(
     evidence: Vec<Evidence>,
     files: Vec<FileItem>,
 ) -> Stack {
-    Stack { id: stack_id(kind, &files), kind, title, summary, action, destination, confidence, evidence, files }
+    Stack { id: stack_id(kind, &files), kind, title, summary, action, destination, confidence, evidence, files, can_learn: false }
 }
 
 fn free(entries: &[Entry], used: &HashSet<usize>) -> Vec<usize> {
@@ -399,7 +405,7 @@ fn versions(entries: &[Entry], used: &mut HashSet<usize>) -> Vec<Stack> {
 fn stale(entries: &[Entry], ctx: &Context, used: &mut HashSet<usize>) -> Option<Stack> {
     let found: Vec<usize> = free(entries, used)
         .into_iter()
-        .filter(|&i| entries[i].size >= STALE_MIN_BYTES && entries[i].age_secs(ctx.now) >= STALE_SECS)
+        .filter(|&i| !entries[i].is_dir && entries[i].size >= STALE_MIN_BYTES && entries[i].age_secs(ctx.now) >= STALE_SECS)
         .collect();
     if found.is_empty() {
         return None;

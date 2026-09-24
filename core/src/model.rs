@@ -113,6 +113,8 @@ pub struct Stack {
     pub confidence: Confidence,
     pub evidence: Vec<Evidence>,
     pub files: Vec<FileItem>,
+    /// Whether "Always move files like these" can become a rule for this group.
+    pub can_learn: bool,
 }
 
 impl Stack {

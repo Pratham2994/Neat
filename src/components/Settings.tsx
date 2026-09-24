@@ -43,12 +43,14 @@ export function SettingsView({ settings, onChange }: { settings: Settings | null
                   ? "Set by NEAT_DOWNLOADS. Neat keeps a separate history for it and never touches your real Downloads."
                   : "Neat only works inside this folder. Everything it files stays in here."
               }
-              control={<span className="selectable truncate font-mono text-[12px] text-ink-2">{settings.folder}</span>}
+              control={<FolderPath path={settings.folder} />}
             />
             <Row title="Version" control={<span className="font-mono text-[12px] text-ink-2">{settings.version}</span>} />
           </div>
         ) : (
-          <p className="mt-6 border-t border-rule-strong pt-4 text-ink-3">Settings are not available right now.</p>
+          <p className="mt-6 border-t border-rule-strong pt-4 text-ink-2">
+            Neat could not read its settings. Quit Neat from the tray icon and open it again.
+          </p>
         )}
       </div>
     </div>
@@ -59,10 +61,19 @@ function Row({ title, detail, control }: { title: string; detail?: string; contr
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,auto)] items-center gap-x-8 border-b border-rule px-3 py-3">
       <div className="min-w-0">
-        <div>{title}</div>
-        {detail && <div className="max-w-[75ch] text-[12px] text-ink-3">{detail}</div>}
+        <div className="text-[14px] font-medium">{title}</div>
+        {detail && <div className="max-w-[75ch] text-[12px] text-ink-2">{detail}</div>}
       </div>
       <div className="flex min-w-0 justify-end">{control}</div>
     </div>
+  );
+}
+
+// Long paths lose their start, not their end: the last folder name is what tells them apart.
+function FolderPath({ path }: { path: string }) {
+  return (
+    <span className="selectable block max-w-[48ch] truncate font-mono text-[12px] text-ink-2 [direction:rtl]" title={path}>
+      <bdi>{path}</bdi>
+    </span>
   );
 }

@@ -129,6 +129,8 @@ fn downloads_round_trip() {
     assert_eq!(stale.confidence, Confidence::Low);
     let receipts = find(stacks, StackKind::Category, "Receipts");
     assert_eq!(receipts.files.len(), 2);
+    assert!(receipts.can_learn, "receipts can become a rule");
+    assert!(!versions.can_learn, "versions from no common site cannot become a rule");
     find(stacks, StackKind::Category, "Images");
     let everything: Vec<&str> = stacks.iter().flat_map(|s| s.files.iter().map(|f| f.name.as_str())).collect();
     assert!(!everything.contains(&"just-arrived.pdf"), "files still settling must wait");
@@ -162,6 +164,11 @@ fn downloads_round_trip() {
     neat.apply(&images_id, ActionKind::Keep, false).unwrap();
     let inbox = neat.scan().unwrap();
     assert!(inbox.stacks.iter().all(|s| s.id != images_id), "kept groups stay dismissed");
+    // Keeping is per file: a new image forms a group of its own, without the kept ones.
+    write(d, "wallpaper-3.webp", b"webp three", DAY);
+    let inbox = neat.scan().unwrap();
+    let images = find(&inbox.stacks, StackKind::Category, "Images");
+    assert_eq!(images.files.iter().map(|f| f.name.as_str()).collect::<Vec<_>>(), vec!["wallpaper-3.webp"]);
 
     // --- The rule files a new invoice by itself on the next scan.
     write(d, "Invoice_555-0000000-1111.pdf", b"invoice three", 10 * 60);
