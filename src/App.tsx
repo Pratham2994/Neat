@@ -1,24 +1,27 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion, MotionConfig } from "motion/react";
-import { ArrowDown, ArrowUp, Check } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, CircleAlert } from "lucide-react";
 import { Activity } from "./components/Activity";
 import { Inbox } from "./components/Inbox";
 import { Rules } from "./components/Rules";
+import { SettingsView } from "./components/Settings";
 import { Button, cx, Key } from "./components/ui";
 import { formatBytes, formatCount, relativeTime } from "./lib/format";
-import { awayMoves, doneThisSession, sureStacks, useNeatStore, type Notice, type State, type View } from "./lib/store";
+import { awayMoves, doneThisSession, sureStacks, useNeat, type Notice, type State, type View } from "./lib/store";
 import type { ActionKind } from "./lib/types";
 
 const views: { view: View; label: string }[] = [
   { view: "inbox", label: "Inbox" },
   { view: "activity", label: "Activity" },
   { view: "rules", label: "Rules" },
+  { view: "settings", label: "Settings" },
 ];
 
 const NOTICE_MS = 6000;
+const ERROR_NOTICE_MS = 10000;
 
 export default function App() {
-  const [state, dispatch] = useNeatStore();
+  const { state, actions } = useNeat();
   // "Always move files like these" applies to the selected group only.
   const [alwaysFor, setAlwaysFor] = useState<string | null>(null);
   useEffect(() => setAlwaysFor(null), [state.selectedId]);
@@ -26,66 +29,58 @@ export default function App() {
   const selected = state.stacks.find((s) => s.id === state.selectedId) ?? null;
   const sure = sureStacks(state);
 
-  const resolve = useCallback(
-    (id: string, action: ActionKind) => {
-      dispatch({ type: "resolve", id, action, always: alwaysFor === id });
-      setAlwaysFor(null);
-    },
-    [alwaysFor, dispatch],
-  );
-
-  const scan = useCallback(() => {
-    // Placeholder until the scanner is wired to the Rust core.
-    dispatch({ type: "scan", done: false });
-    setTimeout(() => dispatch({ type: "scan", done: true }), 1400);
-  }, [dispatch]);
+  const resolve = (id: string, action: ActionKind) => {
+    void actions.resolve(id, action, alwaysFor === id);
+    setAlwaysFor(null);
+  };
 
   useEffect(() => {
     if (!state.notice) return;
-    const id = state.notice.id;
-    const timer = setTimeout(() => dispatch({ type: "dismissNotice", id }), NOTICE_MS);
+    const { id, tone } = state.notice;
+    const timer = setTimeout(() => actions.dismissNotice(id), tone === "error" ? ERROR_NOTICE_MS : NOTICE_MS);
     return () => clearTimeout(timer);
-  }, [state.notice, dispatch]);
+  }, [state.notice, actions]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      const target = e.target as HTMLElement;
+      // Keys sent to the window itself (not an element) are treated as page-level keys.
+      const target = e.target instanceof HTMLElement ? e.target : document.body;
       if (target.closest("input, textarea, select, [contenteditable]")) return;
       // Let a focused control handle its own Enter and Space.
       if ((e.key === "Enter" || e.key === " ") && target.closest("button, [role=switch]")) return;
 
-      if (e.ctrlKey && ["1", "2", "3"].includes(e.key)) {
+      if (e.ctrlKey && ["1", "2", "3", "4"].includes(e.key)) {
         e.preventDefault();
-        dispatch({ type: "view", view: views[Number(e.key) - 1].view });
+        actions.view(views[Number(e.key) - 1].view);
         return;
       }
       if (e.key.toLowerCase() === "z" && !e.altKey && !e.shiftKey) {
         e.preventDefault();
-        dispatch({ type: "undo" });
+        void actions.undo();
         return;
       }
       if (state.view !== "inbox" || e.ctrlKey || e.altKey || e.metaKey) return;
 
       if (e.key === "Enter" && e.shiftKey) {
         e.preventDefault();
-        dispatch({ type: "resolveSure" });
+        void actions.resolveSure();
         return;
       }
       switch (e.key) {
         case "ArrowDown":
           e.preventDefault();
-          dispatch({ type: "step", delta: 1 });
+          actions.step(1);
           break;
         case "ArrowUp":
           e.preventDefault();
-          dispatch({ type: "step", delta: -1 });
+          actions.step(-1);
           break;
         case " ":
           e.preventDefault();
-          dispatch({ type: "toggleExpand" });
+          actions.toggleExpand();
           break;
         case "Escape":
-          if (state.expandedId) dispatch({ type: "toggleExpand", id: state.expandedId });
+          if (state.expandedId) actions.toggleExpand(state.expandedId);
           break;
         case "Enter":
           if (selected) resolve(selected.id, selected.action);
@@ -106,7 +101,7 @@ export default function App() {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [state.view, state.expandedId, selected, resolve, dispatch]);
+  });
 
   return (
     <MotionConfig reducedMotion="user">
@@ -121,13 +116,14 @@ export default function App() {
           view={state.view}
           inboxCount={state.stacks.length}
           scanning={state.scanning}
-          onView={(view) => dispatch({ type: "view", view })}
-          onScan={scan}
+          onView={actions.view}
+          onScan={() => void actions.scan()}
         />
 
         <main className="flex min-h-0 flex-1 flex-col">
           {state.view === "inbox" && (
             <Inbox
+              loading={state.loading}
               stacks={state.stacks}
               selectedId={state.selectedId}
               expandedId={state.expandedId}
@@ -137,28 +133,29 @@ export default function App() {
               done={doneThisSession(state)}
               always={alwaysFor !== null && alwaysFor === state.selectedId}
               onAlways={(on) => setAlwaysFor(on ? state.selectedId : null)}
-              onSelect={(id) => dispatch({ type: "select", id })}
-              onToggle={(id) => dispatch({ type: "toggleExpand", id })}
+              onSelect={actions.select}
+              onToggle={actions.toggleExpand}
               onResolve={resolve}
-              onResolveSure={() => dispatch({ type: "resolveSure" })}
-              onUndo={(entryIds) => dispatch({ type: "undo", entryIds })}
-              onUndoAway={() => dispatch({ type: "undoAway" })}
-              onDismissAway={() => dispatch({ type: "dismissAway" })}
-              onShowActivity={() => dispatch({ type: "view", view: "activity" })}
-              onShowRules={() => dispatch({ type: "view", view: "rules" })}
+              onResolveSure={() => void actions.resolveSure()}
+              onUndo={(entryIds) => void actions.undo(entryIds)}
+              onUndoAway={() => void actions.undoAway()}
+              onDismissAway={actions.dismissAway}
+              onShowActivity={() => actions.view("activity")}
+              onShowRules={() => actions.view("rules")}
             />
           )}
-          {state.view === "activity" && (
-            <Activity entries={state.activity} onUndo={(id) => dispatch({ type: "undo", entryIds: [id] })} />
+          {state.view === "activity" && <Activity entries={state.activity} onUndo={(id) => void actions.undo([id])} />}
+          {state.view === "rules" && <Rules rules={state.rules} onToggle={(id) => void actions.toggleRule(id)} />}
+          {state.view === "settings" && (
+            <SettingsView settings={state.settings} onChange={(change) => void actions.updateSettings(change)} />
           )}
-          {state.view === "rules" && <Rules rules={state.rules} onToggle={(id) => dispatch({ type: "toggleRule", id })} />}
         </main>
 
         <StatusBar
           state={state}
           notice={state.notice}
           showKeys={state.view === "inbox" && state.stacks.length > 0}
-          onUndo={(ids) => dispatch({ type: "undo", entryIds: ids })}
+          onUndo={(ids) => void actions.undo(ids)}
         />
       </div>
     </MotionConfig>
@@ -243,21 +240,27 @@ function StatusBar({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                role="status"
+                role={notice.tone === "error" ? "alert" : "status"}
                 className="flex items-center gap-2.5"
               >
-                <Check size={13} strokeWidth={2.2} className="text-cobalt" />
-                <span className="truncate text-[13px] text-ink">{notice.message}</span>
+                {notice.tone === "error" ? (
+                  <CircleAlert size={13} strokeWidth={2.2} className="shrink-0 text-brick" />
+                ) : (
+                  <Check size={13} strokeWidth={2.2} className="shrink-0 text-cobalt" />
+                )}
+                <span className="truncate text-[13px] text-ink" title={notice.message}>
+                  {notice.message}
+                </span>
                 {notice.undo && (
                   <button
                     onClick={() => onUndo(notice.undo!)}
-                    className="flex items-center gap-1.5 rounded-[3px] px-1.5 py-0.5 font-medium text-cobalt-soft transition-colors hover:bg-cobalt/12"
+                    className="flex shrink-0 items-center gap-1.5 rounded-[3px] px-1.5 py-0.5 font-medium text-cobalt-soft transition-colors hover:bg-cobalt/12"
                   >
                     Undo <Key>Z</Key>
                   </button>
                 )}
               </motion.div>
-            ) : (
+            ) : folder ? (
               <motion.div
                 key="folder"
                 initial={{ opacity: 0 }}
@@ -266,7 +269,7 @@ function StatusBar({
                 transition={{ duration: 0.15 }}
                 className="flex items-center gap-2 truncate"
               >
-                <span className="text-ink-2">Downloads</span>
+                <span className="text-ink-2">{state.settings?.testFolder ? "Test folder" : "Downloads"}</span>
                 <span>
                   {formatCount(folder.files)} files, {formatBytes(folder.bytes)}
                 </span>
@@ -282,6 +285,8 @@ function StatusBar({
                 <span aria-hidden>·</span>
                 <span>Scanned {relativeTime(folder.lastScan)}</span>
               </motion.div>
+            ) : (
+              <span key="loading">Reading Downloads</span>
             )}
           </AnimatePresence>
         </div>

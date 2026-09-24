@@ -563,10 +563,15 @@ fn restore(original: &Path) -> std::result::Result<(), String> {
     }
     let items = trash::os_limited::list().map_err(|e| format!("Could not read the Recycle Bin: {e}"))?;
     let folder = resolved(original.parent().unwrap_or(original));
-    let item = items
+    let mut item = items
         .into_iter()
         .filter(|i| is_recycled_copy(i, original, &folder))
         .max_by_key(|i| i.time_deleted)
         .ok_or("No longer in the Recycle Bin")?;
+    // Restore under the real name. On Windows the item's name is the displayed one, which may lack
+    // the extension, and restoring under it would bring "report.pdf" back as "report".
+    if let Some(name) = original.file_name() {
+        item.name = name.to_owned();
+    }
     trash::os_limited::restore_all([item]).map_err(|e| format!("Could not restore it: {e}"))
 }

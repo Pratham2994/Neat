@@ -7,3 +7,4 @@ src-tauri/gen/
 target/
 .impeccable/review/
 .impeccable/config.local.json
+e2e/screenshots/

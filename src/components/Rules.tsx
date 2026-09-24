@@ -1,5 +1,5 @@
 import type { Rule } from "../lib/types";
-import { cx } from "./ui";
+import { cx, Switch } from "./ui";
 
 export function Rules({ rules, onToggle }: { rules: Rule[]; onToggle: (id: string) => void }) {
   return (
@@ -48,27 +48,5 @@ export function Rules({ rules, onToggle }: { rules: Rule[]; onToggle: (id: strin
         </div>
       </div>
     </div>
-  );
-}
-
-function Switch({ on, onChange, label }: { on: boolean; onChange: () => void; label: string }) {
-  return (
-    <button
-      role="switch"
-      aria-checked={on}
-      aria-label={label}
-      onClick={onChange}
-      className={cx(
-        "relative h-[18px] w-8 shrink-0 rounded-[4px] border transition-colors duration-150",
-        on ? "border-cobalt/60" : "border-rule-strong hover:border-ink-3",
-      )}
-    >
-      <span
-        className={cx(
-          "absolute top-[3px] size-2.5 rounded-[2px] transition-[left,background-color] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]",
-          on ? "left-[17px] bg-cobalt" : "left-[3px] bg-ink-3",
-        )}
-      />
-    </button>
   );
 }

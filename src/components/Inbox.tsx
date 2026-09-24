@@ -17,13 +17,14 @@ const WIDE_ONLY = "max-[1020px]:hidden";
 const NARROW_ONLY = "min-[1021px]:hidden";
 
 interface Props {
+  loading: boolean;
   stacks: Stack[];
   selectedId: string | null;
   expandedId: string | null;
-  lastSession: string;
+  lastSession: string | null;
   away: ActivityEntry[];
   sure: Stack[];
-  done: { entry: ActivityEntry; stack: Stack }[];
+  done: { entry: ActivityEntry; stack?: Stack }[];
   always: boolean;
   onAlways: (value: boolean) => void;
   onSelect: (id: string) => void;
@@ -44,6 +45,7 @@ export function Inbox(props: Props) {
   const sureIds = new Set(sure.map((s) => s.id));
   const files = stacks.reduce((n, s) => n + s.files.length, 0);
   const bytes = stacks.reduce((n, s) => n + s.files.reduce((m, f) => m + f.size, 0), 0);
+  const since = props.lastSession ? sinceLabel(props.lastSession) : "First look at Downloads";
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
@@ -51,9 +53,11 @@ export function Inbox(props: Props) {
         <header>
           <h1 className="text-[18px] font-semibold tracking-[-0.01em]">Inbox</h1>
           <p className="mt-0.5 text-ink-2">
-            {stacks.length > 0
-              ? `${sinceLabel(props.lastSession)}: ${plural(stacks.length, "group")}, ${plural(files, "file")}, ${formatBytes(bytes)}`
-              : `${sinceLabel(props.lastSession)}: nothing left to decide`}
+            {props.loading
+              ? "Reading Downloads"
+              : stacks.length > 0
+                ? `${since}: ${plural(stacks.length, "group")}, ${plural(files, "file")}, ${formatBytes(bytes)}`
+                : `${since}: nothing left to decide`}
           </p>
         </header>
 
@@ -67,7 +71,9 @@ export function Inbox(props: Props) {
         )}
 
         <LayoutGroup>
-          {stacks.length > 0 ? (
+          {props.loading ? (
+            <Skeleton />
+          ) : stacks.length > 0 ? (
             <div role="table" aria-label="Groups to review" className="mt-6">
               <div
                 role="row"
@@ -422,7 +428,7 @@ const verbs: Record<ActionKind, { word: string; tone: string }> = {
   keep: { word: "Kept", tone: "text-ink-2" },
 };
 
-function Done({ done, onUndo }: { done: { entry: ActivityEntry; stack: Stack }[]; onUndo: (ids: string[]) => void }) {
+function Done({ done, onUndo }: { done: { entry: ActivityEntry; stack?: Stack }[]; onUndo: (ids: string[]) => void }) {
   const freed = done.filter((d) => d.entry.action === "recycle").reduce((n, d) => n + d.entry.bytes, 0);
   return (
     <section className="mt-10">
@@ -446,8 +452,8 @@ function Done({ done, onUndo }: { done: { entry: ActivityEntry; stack: Stack }[]
               className="grid grid-cols-[76px_minmax(0,1fr)_auto_auto] items-center gap-x-4 border-b border-rule py-1.5 pl-3"
             >
               <span className={cx("text-[12px] font-medium", verb.tone)}>{verb.word}</span>
-              <motion.span layoutId={`title-${stack.id}`} className="truncate text-ink-2">
-                {stack.title}
+              <motion.span layoutId={stack ? `title-${stack.id}` : undefined} className="truncate text-ink-2">
+                {entry.title}
                 {entry.destination && <span className="text-ink-3"> to {entry.destination}</span>}
               </motion.span>
               <span className="font-mono text-[12px] text-ink-3">
@@ -461,6 +467,22 @@ function Done({ done, onUndo }: { done: { entry: ActivityEntry; stack: Stack }[]
         })}
       </ul>
     </section>
+  );
+}
+
+function Skeleton() {
+  return (
+    <div aria-hidden className="mt-6 border-t border-rule-strong">
+      {[0.62, 0.48, 0.55].map((w, i) => (
+        <div key={i} className="flex items-center gap-4 border-b border-rule px-3 py-4 pl-8">
+          <div className="min-w-0 flex-1 space-y-2">
+            <div className="h-3 animate-pulse rounded-[2px] bg-rule-strong" style={{ width: `${w * 60}%` }} />
+            <div className="h-2.5 animate-pulse rounded-[2px] bg-rule" style={{ width: `${w * 90}%` }} />
+          </div>
+          <div className="h-[30px] w-[188px] animate-pulse rounded-[4px] border border-rule" />
+        </div>
+      ))}
+    </div>
   );
 }
 

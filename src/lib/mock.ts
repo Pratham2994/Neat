@@ -1,6 +1,7 @@
 import type { ActivityEntry, FolderStatus, Rule, Stack } from "./types";
 
-// Mock data until the Rust core exists. Dates are relative to now so the UI always looks current.
+// Sample data for running the UI in a browser without the Rust core (see mockBackend.ts).
+// Dates are relative to now so the UI always looks current.
 
 const MB = 1024 * 1024;
 const GB = 1024 * MB;
@@ -47,7 +48,7 @@ export const mockStacks: Stack[] = [
   },
   {
     id: "s-receipts",
-    kind: "receipts",
+    kind: "category",
     title: "Receipts and invoices",
     summary: "From amazon.in, flipkart.com, swiggy.com",
     action: "move",
@@ -154,7 +155,7 @@ export const mockStacks: Stack[] = [
   },
   {
     id: "s-images",
-    kind: "images",
+    kind: "category",
     title: "Wallpapers and images",
     summary: "4 images from unsplash.com and pexels.com",
     action: "move",
@@ -203,7 +204,7 @@ export const mockStacks: Stack[] = [
 
 export const mockActivity: ActivityEntry[] = [
   {
-    id: "a1",
+    id: "1",
     at: ago(0, 0, 42),
     action: "move",
     auto: true,
@@ -213,7 +214,7 @@ export const mockActivity: ActivityEntry[] = [
     destination: "Finance/Bank",
   },
   {
-    id: "a2",
+    id: "2",
     at: ago(0, 2, 5),
     action: "move",
     auto: true,
@@ -222,9 +223,9 @@ export const mockActivity: ActivityEntry[] = [
     bytes: 9 * MB,
     destination: "Images/Screenshots",
   },
-  { id: "a3", at: ago(1, 3), action: "recycle", auto: false, title: "Old Chrome installers", count: 3, bytes: 410 * MB },
+  { id: "3", at: ago(1, 3), action: "recycle", auto: false, title: "Old Chrome installers", count: 3, bytes: 410 * MB },
   {
-    id: "a4",
+    id: "4",
     at: ago(1, 5),
     action: "move",
     auto: true,
@@ -234,7 +235,7 @@ export const mockActivity: ActivityEntry[] = [
     destination: "University",
   },
   {
-    id: "a5",
+    id: "5",
     at: ago(3, 1),
     action: "rule",
     auto: false,
@@ -244,7 +245,7 @@ export const mockActivity: ActivityEntry[] = [
     destination: "Finance/Bank",
   },
   {
-    id: "a6",
+    id: "6",
     at: ago(3, 1, 2),
     action: "move",
     auto: false,
@@ -257,7 +258,7 @@ export const mockActivity: ActivityEntry[] = [
 
 export const mockRules: Rule[] = [
   {
-    id: "r1",
+    id: "1",
     when: "Downloaded from",
     value: "hdfcbank.com",
     then: "Move to Finance/Bank",
@@ -266,7 +267,7 @@ export const mockRules: Rule[] = [
     enabled: true,
   },
   {
-    id: "r2",
+    id: "2",
     when: "Downloaded from",
     value: "classroom.google.com",
     then: "Move to University",
@@ -275,7 +276,7 @@ export const mockRules: Rule[] = [
     enabled: true,
   },
   {
-    id: "r3",
+    id: "3",
     when: "Name matches",
     value: "Screenshot*.png",
     then: "Move to Images/Screenshots",
@@ -283,7 +284,6 @@ export const mockRules: Rule[] = [
     matched: 64,
     enabled: true,
   },
-  { id: "r4", when: "Name matches", value: "*.torrent", then: "Never suggest", auto: false, matched: 9, enabled: true },
 ];
 
 // When the user last opened Neat on this machine.

@@ -1,9 +1,9 @@
-// Shapes shared between the UI and the Rust core.
-// The core will return these from Tauri commands; for now src/lib/mock.ts fills them.
+// Shapes shared between the UI and the Rust core. They match core/src/model.rs and the
+// commands in src-tauri/src/lib.rs; src/lib/mockBackend.ts returns the same shapes in a browser.
 
 export type ActionKind = "move" | "keep" | "recycle";
 
-export type StackKind = "installers" | "duplicates" | "versions" | "archive" | "partial" | "stale" | "receipts" | "images";
+export type StackKind = "installers" | "duplicates" | "versions" | "archive" | "partial" | "stale" | "category";
 
 export type Confidence = "high" | "medium" | "low";
 
@@ -50,7 +50,7 @@ export interface ActivityEntry {
 export interface Rule {
   id: string;
   when: string; // plain words, e.g. "Downloaded from"
-  value?: string; // the typed part, shown in mono, e.g. "hdfcbank.com"
+  value: string; // the typed part, shown in mono, e.g. "hdfcbank.com"
   then: string;
   auto: boolean;
   matched: number;
@@ -63,4 +63,29 @@ export interface FolderStatus {
   bytes: number;
   watching: boolean;
   lastScan: string;
+}
+
+export interface Inbox {
+  stacks: Stack[];
+  folder: FolderStatus;
+  lastSession?: string; // when Neat was last opened on this machine
+}
+
+export interface Skipped {
+  path: string;
+  reason: string;
+}
+
+// What an apply or undo did. `skipped` lists files that were left alone, with a plain reason.
+export interface Outcome {
+  entries: ActivityEntry[];
+  skipped: Skipped[];
+}
+
+export interface Settings {
+  autoRules: boolean;
+  startAtLogin: boolean;
+  folder: string;
+  testFolder: boolean;
+  version: string;
 }
