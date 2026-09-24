@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-24T16:12:43Z",
+  "generatedAt": "2026-09-24T18:00:00Z",
   "title": "Design System: Neat",
   "extensions": {
     "colorMeta": {
@@ -216,11 +216,11 @@
     "typographyMeta": {
       "wordmark": {
         "displayName": "Wordmark",
-        "purpose": "\"Neat\" in the top bar. Text only; no logo mark."
+        "purpose": "\"Neat\" in the top bar. Text only; the window carries no logo mark (the app icon lives with the operating system)."
       },
       "headline": {
         "displayName": "Headline",
-        "purpose": "The one page title per view (Inbox, Activity, Rules)."
+        "purpose": "The one page title per view (Inbox, Activity, Rules, Settings)."
       },
       "title": {
         "displayName": "Title",
@@ -228,11 +228,11 @@
       },
       "title-row": {
         "displayName": "Row title",
-        "purpose": "The group name on a manifest row."
+        "purpose": "The group name on a manifest row and the title of a setting row."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Running text, ledger entries, notice lines and tab labels. Tabular figures."
+        "purpose": "Running text, ledger entries, notice lines (including a status-strip notice) and tab labels. Tabular figures."
       },
       "button": {
         "displayName": "Button",
@@ -240,7 +240,7 @@
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Column headers, summaries under row titles, evidence detail, status strip, key legend."
+        "purpose": "Column headers, summaries under row titles, setting details, evidence detail, the checkbox label, the status strip folder line, key legend."
       },
       "label-strong": {
         "displayName": "Label strong",
@@ -248,7 +248,7 @@
       },
       "data": {
         "displayName": "Data",
-        "purpose": "Hosts, file names, sizes, counts, times and rule patterns, wherever they stand as entries."
+        "purpose": "Hosts, file names, sizes, counts, times, rule patterns, the folder path and the version number, wherever they stand as entries."
       },
       "key": {
         "displayName": "Key",
@@ -270,7 +270,7 @@
       {
         "name": "duration-notice",
         "value": "180ms",
-        "purpose": "A status-strip notice rises 6px into place; it leaves by 4px upwards."
+        "purpose": "A status-strip notice rises 6px into place; it leaves by 4px upwards. Completed notices stay six seconds, errors ten."
       },
       {
         "name": "duration-settle",
@@ -364,8 +364,8 @@
       "name": "Section Tabs",
       "kind": "nav",
       "refersTo": "tab",
-      "description": "Text tabs in the Desk Black top bar beside the wordmark; the active tab carries a 2px cobalt underline on the bar's bottom rule.",
-      "html": "<header class=\"ds-topbar\"><span class=\"ds-wordmark\">Neat</span><nav class=\"ds-tabs\"><a class=\"ds-tab\" aria-current=\"page\" href=\"#\">Inbox <span class=\"ds-tab-count\">8</span></a><a class=\"ds-tab\" href=\"#\">Activity</a><a class=\"ds-tab\" href=\"#\">Rules</a></nav></header>",
+      "description": "Four text tabs (Inbox, Activity, Rules, Settings) in the Desk Black top bar beside the wordmark; Ctrl 1 to 4 switch them. The active tab carries a 2px cobalt underline on the bar's bottom rule.",
+      "html": "<header class=\"ds-topbar\"><span class=\"ds-wordmark\">Neat</span><nav class=\"ds-tabs\"><a class=\"ds-tab\" aria-current=\"page\" href=\"#\">Inbox <span class=\"ds-tab-count\">8</span></a><a class=\"ds-tab\" href=\"#\">Activity</a><a class=\"ds-tab\" href=\"#\">Rules</a><a class=\"ds-tab\" href=\"#\">Settings</a></nav></header>",
       "css": ".ds-topbar { display: flex; align-items: stretch; gap: 28px; height: 48px; padding: 0 24px; background: var(--color-chrome, #0e0d0c); border-bottom: 1px solid var(--color-rule, #2a2724); font-family: \"Public Sans Variable\", \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif; } .ds-wordmark { align-self: center; color: var(--color-ink, #ede8e0); font-size: 15px; font-weight: 700; letter-spacing: -0.02em; } .ds-tabs { display: flex; align-items: stretch; gap: 20px; } .ds-tab { position: relative; display: flex; align-items: center; gap: 6px; color: var(--color-ink-2, #aba49a); font-size: 13px; text-decoration: none; transition: color 150ms; } .ds-tab:hover, .ds-tab[aria-current=page] { color: var(--color-ink, #ede8e0); } .ds-tab[aria-current=page]::after { content: \"\"; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--color-cobalt, #8aa4ff); } .ds-tab-count { color: var(--color-ink-3, #8a847b); } .ds-tab:focus-visible { outline: 2px solid var(--color-cobalt, #8aa4ff); outline-offset: 2px; }"
     },
     {
@@ -388,9 +388,25 @@
       "name": "Switch",
       "kind": "input",
       "refersTo": "switch",
-      "description": "A rectangular on/off switch for rules: 32 by 18px, square thumb, cobalt only when on.",
-      "html": "<button class=\"ds-switch\" role=\"switch\" aria-checked=\"true\" aria-label=\"Rule on\"><span></span></button> <button class=\"ds-switch\" role=\"switch\" aria-checked=\"false\" aria-label=\"Rule off\"><span></span></button>",
+      "description": "The one shared on/off switch, used by Rules and Settings: 32 by 18px, square thumb, cobalt only when on.",
+      "html": "<button class=\"ds-switch\" role=\"switch\" aria-checked=\"true\" aria-label=\"On\"><span></span></button> <button class=\"ds-switch\" role=\"switch\" aria-checked=\"false\" aria-label=\"Off\"><span></span></button>",
       "css": ".ds-switch { position: relative; width: 32px; height: 18px; padding: 0; border-radius: 4px; border: 1px solid var(--color-rule-strong, #3b3834); background: transparent; transition: border-color 150ms; } .ds-switch:hover { border-color: var(--color-ink-3, #8a847b); } .ds-switch span { position: absolute; top: 3px; left: 3px; width: 10px; height: 10px; border-radius: 2px; background: var(--color-ink-3, #8a847b); transition: left 200ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-switch[aria-checked=true] { border-color: color-mix(in oklab, var(--color-cobalt, #8aa4ff) 60%, transparent); } .ds-switch[aria-checked=true] span { left: 17px; background: var(--color-cobalt, #8aa4ff); } .ds-switch:focus-visible { outline: 2px solid var(--color-cobalt, #8aa4ff); outline-offset: 2px; }"
+    },
+    {
+      "name": "Setting Row",
+      "kind": "custom",
+      "refersTo": "setting-row",
+      "description": "A ruled settings line: title in the row title style, a Pencil Grey detail, the control on the right. A long folder path loses its start, not its end.",
+      "html": "<div class=\"ds-settings\"><div class=\"ds-setting\"><div class=\"ds-setting-words\"><div class=\"ds-setting-title\">Move files that match a rule without asking</div><div class=\"ds-setting-detail\">When this is off, rules wait and Neat only suggests. Recycling always waits for you either way.</div></div><button class=\"ds-switch\" role=\"switch\" aria-checked=\"true\" aria-label=\"Automatic rules\"><span></span></button></div><div class=\"ds-setting\"><div class=\"ds-setting-words\"><div class=\"ds-setting-title\">Folder</div><div class=\"ds-setting-detail\">Neat only works inside this folder. Everything it files stays in here.</div></div><span class=\"ds-path\" title=\"C:\\Users\\Pratham\\Downloads\"><bdi>C:\\Users\\Pratham\\Downloads</bdi></span></div><div class=\"ds-setting\"><div class=\"ds-setting-words\"><div class=\"ds-setting-title\">Version</div></div><span class=\"ds-value\">0.1.0</span></div></div>",
+      "css": ".ds-settings { border-top: 1px solid var(--color-rule-strong, #3b3834); background: var(--color-ground, #121110); color: var(--color-ink, #ede8e0); font: 400 13px/1.45 \"Public Sans Variable\", \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif; } .ds-setting { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,auto); align-items: center; column-gap: 32px; padding: 12px; border-bottom: 1px solid var(--color-rule, #2a2724); } .ds-setting-words { min-width: 0; } .ds-setting-title { font-size: 14px; font-weight: 500; } .ds-setting-detail { max-width: 75ch; font-size: 12px; color: var(--color-ink-2, #aba49a); } .ds-path, .ds-value { justify-self: end; font: 400 12px/1.45 \"JetBrains Mono Variable\", \"Cascadia Mono\", Consolas, monospace; color: var(--color-ink-2, #aba49a); } .ds-path { display: block; max-width: 48ch; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; direction: rtl; user-select: text; } .ds-switch { justify-self: end; position: relative; width: 32px; height: 18px; padding: 0; border-radius: 4px; border: 1px solid var(--color-rule-strong, #3b3834); background: transparent; transition: border-color 150ms; } .ds-switch:hover { border-color: var(--color-ink-3, #8a847b); } .ds-switch span { position: absolute; top: 3px; left: 3px; width: 10px; height: 10px; border-radius: 2px; background: var(--color-ink-3, #8a847b); transition: left 200ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-switch[aria-checked=true] { border-color: color-mix(in oklab, var(--color-cobalt, #8aa4ff) 60%, transparent); } .ds-switch[aria-checked=true] span { left: 17px; background: var(--color-cobalt, #8aa4ff); } .ds-switch:focus-visible { outline: 2px solid var(--color-cobalt, #8aa4ff); outline-offset: 2px; }"
+    },
+    {
+      "name": "Loading Manifest",
+      "kind": "custom",
+      "refersTo": "placeholder-line",
+      "description": "The Inbox while the first read runs: the real column header and three static ruled placeholder rows on the shared column template. No shimmer, no pulse.",
+      "html": "<div class=\"ds-ph\" aria-hidden=\"true\"><div class=\"ds-ph-head\"><span>Group</span><span>From</span><span class=\"ds-num\">Files</span><span class=\"ds-num\">Size</span><span></span><span>Action</span></div><div class=\"ds-ph-row\"><span class=\"ds-ph-group\"><span class=\"ds-ph-line\" style=\"width:43%\"></span><span class=\"ds-ph-quiet\" style=\"width:62%\"></span></span><span class=\"ds-ph-quiet\" style=\"width:75%\"></span><span></span><span></span><span></span><span class=\"ds-ph-slots\"><span class=\"ds-ph-slot\"></span></span></div><div class=\"ds-ph-row\"><span class=\"ds-ph-group\"><span class=\"ds-ph-line\" style=\"width:34%\"></span><span class=\"ds-ph-quiet\" style=\"width:48%\"></span></span><span class=\"ds-ph-quiet\" style=\"width:75%\"></span><span></span><span></span><span></span><span class=\"ds-ph-slots\"><span class=\"ds-ph-slot\"></span></span></div><div class=\"ds-ph-row\"><span class=\"ds-ph-group\"><span class=\"ds-ph-line\" style=\"width:38%\"></span><span class=\"ds-ph-quiet\" style=\"width:55%\"></span></span><span class=\"ds-ph-quiet\" style=\"width:75%\"></span><span></span><span></span><span></span><span class=\"ds-ph-slots\"><span class=\"ds-ph-slot\"></span></span></div></div>",
+      "css": ".ds-ph { background: var(--color-ground, #121110); font: 400 12px/1.45 \"Public Sans Variable\", \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif; } .ds-ph-head, .ds-ph-row { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,150px) 48px 76px 56px 376px; align-items: center; column-gap: 16px; padding: 0 12px; } .ds-ph-head { padding-bottom: 8px; border-bottom: 1px solid var(--color-rule-strong, #3b3834); color: var(--color-ink-3, #8a847b); } .ds-ph-head > :first-child { padding-left: 20px; } .ds-num { text-align: right; } .ds-ph-row { padding-top: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--color-rule, #2a2724); } .ds-ph-group { display: flex; flex-direction: column; gap: 8px; padding-left: 20px; } .ds-ph-line { display: block; height: 10px; border-radius: 2px; background: var(--color-rule-strong, #3b3834); } .ds-ph-quiet { display: block; height: 8px; border-radius: 2px; background: var(--color-rule, #2a2724); } .ds-ph-slots { display: grid; grid-template-columns: 188px 80px 96px; gap: 6px; } .ds-ph-slot { height: 30px; border-radius: 4px; border: 1px solid var(--color-rule, #2a2724); box-sizing: border-box; }"
     }
   ],
   "narrative": {
@@ -421,13 +437,18 @@
         "section": "colors"
       },
       {
+        "name": "The Plain Error Rule",
+        "body": "An error carries no icon and no colour. Its headline says what failed in Warm Off-White; its detail, in Pencil Grey, gives the recovery first and the reason after.",
+        "section": "colors"
+      },
+      {
         "name": "The Ground Step Rule",
         "body": "State is shown by stepping the ground (ground, then hover step, then selected step), never by adding a border, a tint of the accent or a glow.",
         "section": "colors"
       },
       {
         "name": "The Mono Is Data Rule",
-        "body": "Monospace is for typed entries only: hosts, file names, sizes, counts, times, rule patterns. Never for labels, headings, prose or key caps.",
+        "body": "Monospace is for typed entries only: hosts, file names, sizes, counts, times, rule patterns, paths, version numbers. Never for labels, headings, prose or key caps.",
         "section": "typography"
       },
       {
@@ -442,7 +463,7 @@
       },
       {
         "name": "The Shared Column Rule",
-        "body": "The column header, every row, the total line and every expanded file line sit on one column template. A new column is added to the template, never to a single row.",
+        "body": "The column header, every row, the loading placeholders, the total line and every expanded file line sit on one column template. A new column is added to the template, never to a single row.",
         "section": "layout"
       },
       {
@@ -475,6 +496,8 @@
       "**Do** put every row, header, total and expanded file line on the one shared column template, and keep each action in its fixed slot.",
       "**Do** open detail in place under its row, on the row's own columns.",
       "**Do** fold secondary columns into the summary line at 1020px and below rather than squeezing them.",
+      "**Do** show loading as the real column header plus three static ruled placeholder rows on the shared template, with the subtitle saying what is happening.",
+      "**Do** write an error as a plain headline plus detail that gives the recovery before the reason.",
       "**Do** animate only with the expo-out ease at 150 to 220ms, and respect the system's reduced-motion setting."
     ],
     "donts": [
@@ -483,7 +506,8 @@
       "**Don't** use cobalt for anything that is not an action or the state of one.",
       "**Don't** use brick for anything but recycling, including errors and warnings.",
       "**Don't** set readable text below 12px outside a key cap, or fainter than Faint Ink; only disabled controls (40% opacity) go lower.",
-      "**Don't** round corners beyond 4px or use pills; the only circle is the watching dot.",
+      "**Don't** round corners beyond 4px inside the window or use pills; the only circle is the watching dot.",
+      "**Don't** give an error an icon or a colour, and don't animate loading placeholders.",
       "**Don't** show confidence as a badge, bar or percentage; it is a word.",
       "**Don't** number manifest rows."
     ]

@@ -173,6 +173,19 @@ components:
     rounded: "{rounded.control}"
     height: "18px"
     width: "32px"
+  setting-row:
+    backgroundColor: "{colors.ground}"
+    textColor: "{colors.ink}"
+    typography: "{typography.title-row}"
+    padding: "12px"
+  placeholder-line:
+    backgroundColor: "{colors.rule-strong}"
+    rounded: "{rounded.thumb}"
+    height: "10px"
+  placeholder-line-quiet:
+    backgroundColor: "{colors.rule}"
+    rounded: "{rounded.thumb}"
+    height: "8px"
 ---
 
 # Design System: Neat
@@ -200,7 +213,7 @@ The world is dark only. It rejects the sidebar, list and detail pane with icon t
 A warm, almost colourless palette of near-blacks and off-whites, with one cool cobalt accent and one warm brick signal.
 
 ### Primary
-- **Cobalt Stamp** (cobalt): the chosen action at full strength. Fills the primary button (the selected row's suggestion and the batch "Apply" button), draws the active tab underline, the focus ring, the ticked checkbox, the switch thumb when on, the "watching" dot, the tick on an applied notice, and the text selection highlight (at 32%).
+- **Cobalt Stamp** (cobalt): the chosen action at full strength. Fills the primary button (the selected row's suggestion and the batch "Apply" button), draws the active tab underline, the focus ring, the ticked checkbox, the switch thumb when on, the "watching" dot, the tick on a completed notice, and the text selection highlight (at 32%).
 - **Pale Cobalt** (cobalt-soft): cobalt as ink rather than fill. Labels Neat's suggestion on rows that are not selected, the "Moved" verb in ledgers, the inline Undo in the status strip, and the "Sure" word while the batch button is previewing. Also the primary button's hover fill.
 - **Cobalt Deep** (cobalt-deep): text and ticks on a cobalt fill only (7.6:1 on cobalt).
 
@@ -212,11 +225,11 @@ A warm, almost colourless palette of near-blacks and off-whites, with one cool c
 - **Manifest Ground** (ground): the page, the sticky column header and every row at rest.
 - **Hover Step** (row-hover): a row or quiet control under the pointer.
 - **Selected Step** (row-selected): the selected row, an expanded row's details, and the rows the batch will apply while its button is hovered or focused.
-- **Hairline** (rule): the 1px line between rows, notice lines and bars.
-- **Header Rule** (rule-strong): the 1px line under column headers and section headings, the border of outline and recycle buttons and of an off switch, and the scrollbar thumb.
-- **Warm Off-White** (ink): primary text, row titles, headings, the wordmark, the active tab.
-- **Pencil Grey** (ink-2): secondary text: summaries, subtitles, host names, figures, inactive tabs, ghost buttons, the key legend.
-- **Faint Ink** (ink-3): the lowest text step: column headers, timestamps, "Not recorded", evidence detail, undone entries, the status strip. It still clears 4.5:1 on every ground step (4.63:1 on the selected step), and no text colour may go below it.
+- **Hairline** (rule): the 1px line between rows, setting rows, notice lines and bars; also the quieter placeholder line and the empty action-slot outline in the loading manifest.
+- **Header Rule** (rule-strong): the 1px line under column headers and section headings, the border of outline and recycle buttons, of an off switch and of an unticked checkbox, the scrollbar thumb, and the stronger placeholder line in the loading manifest.
+- **Warm Off-White** (ink): primary text, row titles, setting titles, headings, the wordmark, the active tab, and the headline of a status-strip notice.
+- **Pencil Grey** (ink-2): secondary text: summaries, subtitles, setting details, host names, figures, the folder path and version, inactive tabs, ghost buttons, the key legend, the folder label ("Downloads" or "Test folder") in the status strip, and the detail of a notice.
+- **Faint Ink** (ink-3): the lowest text step: column headers, timestamps, "Not recorded", evidence detail, undone entries, the status strip's folder figures. It still clears 4.5:1 on every ground step (4.63:1 on the selected step), and no text colour may go below it.
 
 ### Named Rules
 **The One Ink Rule.** Cobalt marks the chosen action and the states that follow from it: selected, active, on, focused, applied, moved. It never decorates, never heads a section and never colours an inert word.
@@ -224,6 +237,8 @@ A warm, almost colourless palette of near-blacks and off-whites, with one cool c
 **The Suggestion Is Cobalt Rule.** Neat's suggestion always takes the cobalt slot, whatever its verb. "Recycle 5" as a suggestion is cobalt; brick belongs to the alternative Recycle button and to recycling already done.
 
 **The Brick Is Recycle Rule.** Brick appears only on recycle. It is not a general danger, error or warning colour.
+
+**The Plain Error Rule.** An error carries no icon and no colour. Its headline says what failed in Warm Off-White; its detail, in Pencil Grey, gives the recovery first and the reason after.
 
 **The Ground Step Rule.** State is shown by stepping the ground (ground, then hover step, then selected step), never by adding a border, a tint of the accent or a glow.
 
@@ -235,19 +250,19 @@ A warm, almost colourless palette of near-blacks and off-whites, with one cool c
 **Character:** Public Sans is a plain, even grotesque that stays out of the way at small sizes; JetBrains Mono makes every recorded value look typed onto the manifest. The pairing splits words from data rather than headings from body, so hierarchy comes from weight and ink step, not size jumps.
 
 ### Hierarchy
-- **Wordmark** (700, 15px, -0.02em): "Neat" in the top bar. Text only; there is no logo mark.
-- **Headline** (600, 18px, -0.01em): the one page title per view (Inbox, Activity, Rules), followed by a Pencil Grey count line or short explanation.
+- **Wordmark** (700, 15px, -0.02em): "Neat" in the top bar. Text only; the window carries no logo mark (the app icon lives with the operating system; see Shapes).
+- **Headline** (600, 18px, -0.01em): the one page title per view (Inbox, Activity, Rules, Settings), followed by a Pencil Grey count line or short explanation.
 - **Title** (600, 14px): section headings such as "Done this session" and "Nothing waiting". Activity day headings use the same weight at 13px.
-- **Row title** (500, 14px): the group name on a manifest row.
-- **Body** (400, 13px, 1.45, tabular figures): all running text, ledger entries, notice lines and tab labels. Explanatory paragraphs are capped at 60 to 75ch.
+- **Row title** (500, 14px): the group name on a manifest row and the title of a setting row.
+- **Body** (400, 13px, 1.45, tabular figures): all running text, ledger entries, notice lines (including a notice in the status strip) and tab labels. Explanatory paragraphs are capped at 60 to 75ch.
 - **Button** (500, 13px): every action label.
-- **Label** (400, 12px): column headers, summaries under row titles, evidence detail, the status strip and the key legend.
+- **Label** (400, 12px): column headers, summaries under row titles, setting details, evidence detail, the checkbox label, the status strip's folder line and the key legend.
 - **Label strong** (500, 12px): the verb column in ledgers (Moved, Recycled, Kept, New rule).
-- **Data** (400, 12px, JetBrains Mono): hosts, file names, sizes, counts, times and rule patterns.
+- **Data** (400, 12px, JetBrains Mono): hosts, file names, sizes, counts, times, rule patterns, the folder path and the version number.
 - **Key** (500, 10.5px, line height 1): the legend inside a key cap, and nowhere else.
 
 ### Named Rules
-**The Mono Is Data Rule.** Monospace is for typed entries only: hosts, file names, sizes, counts, times, rule patterns. Never for labels, headings, prose or key caps.
+**The Mono Is Data Rule.** Monospace is for typed entries only: hosts, file names, sizes, counts, times, rule patterns, paths, version numbers. Never for labels, headings, prose or key caps.
 
 **The Twelve Floor Rule.** No text is smaller than 12px except the legend inside a key cap (10.5px).
 
@@ -263,10 +278,14 @@ Actions live in fixed slots (188px, 80px and 96px, 6px apart): suggestion, Keep,
 
 Expanded details open in place under their row and reuse the row's own columns: file names under Group, hosts under From, sizes under Size, each file's fate under Action. The evidence list ("Why") spans the first two columns.
 
+While the first read runs, the Inbox keeps its real shape: the subtitle reads "Reading Downloads", the real column header sits at its usual place, and three static ruled placeholder rows follow on the same column template, so nothing shifts when the groups arrive.
+
+Rules and Settings follow the same page opening: headline, a Pencil Grey explanation capped at 75ch, then a ruled list 24px below that starts on a Header Rule. A setting row is two columns, the words on the left (flexible) and the control right-aligned, 32px apart, with the row's 12px inset and a Hairline beneath. Setting details are capped at 75ch and the folder path at 48ch.
+
 Responsive behaviour is for window widths, not phones. The window defaults to 1180 by 760 and cannot go below 900 by 600. At 1020px and below, the From and Confidence columns fold into each group's summary line (host in monospace, "Sure" or "Unsure" as a leading word), the action slots shrink to 170px, 62px and 78px, the Select and Details entries leave the key legend, and key caps inside row buttons are hidden.
 
 ### Named Rules
-**The Shared Column Rule.** The column header, every row, the total line and every expanded file line sit on one column template. A new column is added to the template, never to a single row.
+**The Shared Column Rule.** The column header, every row, the loading placeholders, the total line and every expanded file line sit on one column template. A new column is added to the template, never to a single row.
 
 **The Fixed Slot Rule.** Each action verb owns a slot and keeps it. A missing action leaves its slot empty rather than shifting its neighbours.
 
@@ -285,7 +304,11 @@ The system is flat. There are no shadows anywhere, no glow and no backdrop blur.
 
 The form language is rectangular. Controls have gently squared corners (4px): buttons, the dismiss control and the switch track. Smaller marks take 3px (key caps, the checkbox, the inline Undo) and the switch thumb takes 2px, so the corner shrinks with the object. Rows, tables and sections have no corners at all; they are bounded by rules that run the full width of the container. The only circle is the 6px "watching" dot in the status strip.
 
-Icons are functional line marks at 10 to 14px, drawn in the current ink: the disclosure chevron (rotates 90 degrees when open), the tick on evidence lines and notices, the dismiss cross, and arrows inside key caps. They are never filled, tiled or placed on a background.
+Placeholder lines in the loading manifest take 2px corners, like the switch thumb; the placeholder action slot is a 4px hairline box the size of a button.
+
+Icons are functional line marks at 10 to 14px, drawn in the current ink: the disclosure chevron (rotates 90 degrees when open), the tick on evidence lines, completed notices and the ticked checkbox, the dismiss cross, and arrows inside key caps. They are never filled, tiled or placed on a background.
+
+The app icon is the manifest reduced to three ruled rows on the Manifest Ground, each shorter than the one above: the top row in Cobalt Stamp (the chosen action), then Pencil Grey, then a dimmer warm grey (#5d5851) that appears nowhere else. Its tile and bar corners follow the operating system's rounded app-icon silhouette; that rounding belongs to the icon and does not carry into the window.
 
 ## Components
 
@@ -303,7 +326,7 @@ Firm, rectangular and word-led. Every button is a label; the dismiss cross on a 
 A keyboard key drawn as a small hairline box: 17px tall, at least 17px wide, 4px side padding, 3px corners, a border of the current colour at 30%, and the 10.5px key legend. It inherits the ink of whatever holds it, so it reads cobalt-deep inside a primary button and Pencil Grey in the legend. Key caps appear inside row buttons only on the selected row, inside the batch button, inside the status strip's Undo, and in the key legend.
 
 ### Navigation
-Text tabs in the top bar, 20px apart, beside the wordmark. Inactive tabs are Pencil Grey and lift to Warm Off-White on hover; the active tab is Warm Off-White with a 2px cobalt underline sitting on the top bar's bottom rule. The underline slides between tabs (220ms). The Inbox tab carries its open group count in Faint Ink. Ctrl 1, 2 and 3 switch tabs.
+Text tabs in the top bar, 20px apart, beside the wordmark. Inactive tabs are Pencil Grey and lift to Warm Off-White on hover; the active tab is Warm Off-White with a 2px cobalt underline sitting on the top bar's bottom rule. The underline slides between tabs (220ms). There are four tabs: Inbox, Activity, Rules and Settings. The Inbox tab carries its open group count in Faint Ink. Ctrl 1 to 4 switch tabs, and each tab names its shortcut in its tooltip. "Scan now" is a ghost button at the right of the bar; it is disabled (40%) while Neat reads the folder, including the first read.
 
 ### Manifest Row (signature component)
 One consignment per row: a disclosure chevron, the group name in the row title style with a one-line Label summary beneath, the origin host in Data type (or "Not recorded" in Faint Ink), file count and total size right-aligned in Data type, a confidence word, and the three action slots. Rows are separated by hairlines, sit on the Manifest Ground at rest, take the hover step under the pointer and the selected step when selected. Rows are not numbered, because the numbers would change as the manifest empties.
@@ -312,14 +335,26 @@ Confidence is a word, not a badge or a bar: "Sure" in Pencil Grey, "Unsure" in F
 
 Expanding a row opens its details beneath on the selected step (220ms height and fade). File names are the only selectable text in the window; everything else is chrome. When a row is decided, it folds to nothing (200ms height and fade) and its title travels into "Done this session" through a shared layout transition.
 
+### Table Header and Loading Manifest
+The column header is one shared piece: Label type in Faint Ink on the Manifest Ground, sticky at the top of the scroll area, a Header Rule beneath, and the confidence column named for screen readers only. The manifest and its loading state both use it.
+
+The loading state is three placeholder rows at the real row height, each with a Hairline beneath: a stronger placeholder line over a quieter one under Group (their widths vary a little from row to row), a quiet line under From, and an empty hairline box in the suggestion slot. The rows are static, with no shimmer or pulse; the subtitle says what is happening, and they are hidden from screen readers.
+
 ### Ledger Line
 The settled form of a decision, used by "Done this session" and by Activity. A verb column in Label strong, coloured by the action (Moved in Pale Cobalt, Recycled in Brick, Kept in Pencil Grey, New rule in Warm Off-White), then what happened in Body, then files and bytes in Data type, then a ghost Undo on the right. Activity lines have 8px vertical padding, a time column in Data type and a "By rule" or "By you" column; Done lines compress to 6px with the title in Pencil Grey. An undone entry drops to Faint Ink with its description struck through, and its Undo becomes the word "Undone".
 
 ### Notice Lines and Status Strip
-Notice lines are full-width sentences between hairlines, 10px above and below: a Body sentence opening with a medium-weight clause, then Pencil Grey detail, then its actions on the right. The status strip at the foot of the window shows the folder's state in Faint Ink (file count, size, watching state, last scan) and the key legend on the right. After an action it swaps to a notice (a cobalt tick, the message in Warm Off-White and an inline Undo with its key) that rises in over 180ms and returns to the folder line after six seconds.
+Notice lines are full-width sentences between hairlines, 10px above and below: a Body sentence opening with a medium-weight clause, then Pencil Grey detail, then its actions on the right. The status strip at the foot of the window shows the folder's state: the folder label ("Downloads", or "Test folder") in Pencil Grey, then the file count, size, watching state and last scan in Faint Ink, with the key legend on the right while the Inbox has groups. While the first read runs it shows the folder label alone; during a manual scan the watching state reads "Reading".
+
+A notice replaces the folder line and rises in over 180ms. It is one Body line: a medium-weight headline in Warm Off-White, then detail in Pencil Grey, truncated on one line with the full text in its tooltip. A completed action leads with the cobalt tick and ends with an inline Undo and its key, and returns to the folder line after six seconds. An error has no tick, no icon and no colour (per the Plain Error Rule); its detail puts the recovery before the core's reason, it stays for ten seconds, and the key legend steps aside while it shows so the whole message fits.
 
 ### Switch and Checkbox
-The switch is a 32 by 18px rectangle with 4px corners and a 10px square thumb (2px corners). Off: Header Rule border, Faint Ink thumb on the left. On: cobalt border at 60% and a cobalt thumb on the right; the thumb slides in 200ms. The checkbox is a 14px square with 3px corners on a Header Rule border; ticked, it fills cobalt with a Cobalt Deep tick. Both show the standard cobalt focus outline.
+One shared switch serves Rules and Settings. It is a 32 by 18px rectangle with 4px corners and a 10px square thumb (2px corners). Off: Header Rule border (Faint Ink on hover), Faint Ink thumb on the left. On: cobalt border at 60% and a cobalt thumb on the right; the thumb slides in 200ms.
+
+The checkbox is a drawn 14px square with 3px corners on a Header Rule border; ticked, it fills cobalt with a Cobalt Deep tick. The native box is visually hidden and its keyboard focus draws the cobalt outline on the drawn square. It appears once, in a row's details, as "Always move files like these to ..." in Pencil Grey Label type, and only when the group can become a rule. Both controls show the standard cobalt focus outline.
+
+### Setting Row
+A ruled line, not a card. The title in the row title style, a one-line detail beneath in Pencil Grey Label type, and the control on the right: a switch, or a value in Data type. The folder path keeps its end visible: when it is too long it loses its start, because the last folder name is what tells folders apart, and the full path sits in its tooltip. The path is selectable; the version is not. If settings cannot be read, the list gives way to one Pencil Grey sentence under the Header Rule that says how to recover.
 
 ## Do's and Don'ts
 
@@ -332,6 +367,8 @@ The switch is a 32 by 18px rectangle with 4px corners and a 10px square thumb (2
 - **Do** put every row, header, total and expanded file line on the one shared column template, and keep each action in its fixed slot.
 - **Do** open detail in place under its row, on the row's own columns.
 - **Do** fold secondary columns into the summary line at 1020px and below rather than squeezing them.
+- **Do** show loading as the real column header plus three static ruled placeholder rows on the shared template, with the subtitle saying what is happening.
+- **Do** write an error as a plain headline plus detail that gives the recovery before the reason.
 - **Do** animate only with the expo-out ease at 150 to 220ms, and respect the system's reduced-motion setting.
 
 ### Don't:
@@ -340,6 +377,7 @@ The switch is a 32 by 18px rectangle with 4px corners and a 10px square thumb (2
 - **Don't** use cobalt for anything that is not an action or the state of one.
 - **Don't** use brick for anything but recycling, including errors and warnings.
 - **Don't** set readable text below 12px outside a key cap, or fainter than Faint Ink; only disabled controls (40% opacity) go lower.
-- **Don't** round corners beyond 4px or use pills; the only circle is the watching dot.
+- **Don't** round corners beyond 4px inside the window or use pills; the only circle is the watching dot.
+- **Don't** give an error an icon or a colour, and don't animate loading placeholders.
 - **Don't** show confidence as a badge, bar or percentage; it is a word.
 - **Don't** number manifest rows.

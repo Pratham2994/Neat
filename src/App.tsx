@@ -253,7 +253,7 @@ function StatusBar({
                 {notice.undo && (
                   <button
                     onClick={() => onUndo(notice.undo!)}
-                    className="flex shrink-0 items-center gap-1.5 rounded-[3px] px-1.5 py-0.5 font-medium text-cobalt-soft transition-colors hover:bg-cobalt/12"
+                    className="flex shrink-0 items-center gap-1.5 rounded-[3px] px-1.5 py-0.5 font-medium text-cobalt-soft transition-colors hover:bg-row-hover"
                   >
                     Undo <Key>Z</Key>
                   </button>
