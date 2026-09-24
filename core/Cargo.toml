@@ -1,0 +1,23 @@
+[package]
+name = "neat-core"
+version = "0.1.0"
+edition = "2021"
+description = "Scanning, detection and reversible file operations for Neat"
+
+[dependencies]
+blake3 = "1.8.7"
+pelite = "0.10.0"
+regex = "1.13.1"
+rusqlite = { version = "0.40.2", features = ["bundled"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+thiserror = "2.0.21"
+time = { version = "0.3.55", features = ["formatting", "parsing"] }
+trash = "5.2.9"
+zip = { version = "8.6.0", default-features = false }
+
+[target."cfg(windows)".dependencies]
+winreg = "0.56.0"
+
+[dev-dependencies]
+tempfile = "3.27.0"

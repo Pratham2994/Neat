@@ -29,10 +29,17 @@ Prioritize intelligent organization, related/versioned-file grouping, duplicate 
 
 ## Layout and commands
 
-- `src/` React UI. `src/lib/types.ts` holds the shapes the Rust core must return. `src/lib/mock.ts` is placeholder data.
-- `src-tauri/` Tauri shell and Rust core.
-- `npm run typecheck` and `npm run build` for the UI.
-- `cargo check --target x86_64-pc-windows-msvc` in `src-tauri/` to type-check for Windows from Linux. Running the app needs Windows.
+- `src/` React UI. `src/lib/types.ts` holds the shapes the Rust core returns. `src/lib/mock.ts` is placeholder data; the UI is not wired to the core yet.
+- `core/` (`neat-core`): scanning, detectors, rules, SQLite journal, moves, Recycle Bin and undo. Platform-neutral except `source.rs` (Zone.Identifier), `installers.rs` (registry) and the hidden marker attribute, which are `cfg(windows)`.
+- `src-tauri/` Tauri shell. `src/lib.rs` exposes the core as commands (`scan`, `apply`, `apply_suggested`, `undo`, `activity`, `rules`, `set_rule_enabled`).
+- Cargo workspace at the root. `cargo test -p neat-core` runs the end-to-end test (`core/tests/e2e.rs`) against a fake Downloads folder.
+- `npm run typecheck`, `npm run build`, `npm run format` for the UI (Prettier, print width 130).
+- On Linux, `cargo check -p neat` needs `libwebkit2gtk-4.1-dev`. A Windows cross-check of `neat-core` does not work from Linux because bundled SQLite needs MSVC headers. Running the app needs Windows.
+
+## Design
+
+- `PRODUCT.md` (product truth) and `DESIGN.md` (visual system, tokens) are written and maintained with the impeccable skill. `.impeccable/surfaces/` holds the direction contract for the app shell.
+- The visual direction is "Manifest": one ruled table, hairlines instead of cards, warm near-black ground, cobalt only for the chosen action, brick only for recycle.
 
 ## Rules
 

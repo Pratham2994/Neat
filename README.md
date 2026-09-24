@@ -25,7 +25,7 @@ npm run dev         # UI only, in the browser, with mock data
 npm run typecheck
 ```
 
-The UI currently runs on mock data (`src/lib/mock.ts`). The Rust core (scanner, detectors, undo log) is next.
+The UI currently runs on mock data (`src/lib/mock.ts`). The Rust core in `core/` is in place and tested (`cargo test -p neat-core`): it scans Downloads, reads where each file came from, finds duplicates, extracted archives, installers for installed apps, version families, unfinished downloads and large old files, and applies moves, Recycle Bin deletes, rules and undo with a SQLite journal. Wiring the UI to it is next.
 
 ## Core job
 

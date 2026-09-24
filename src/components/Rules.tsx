@@ -1,39 +1,53 @@
-import { motion } from "motion/react";
-import { ArrowRight, ShieldCheck } from "lucide-react";
 import type { Rule } from "../lib/types";
 import { cx } from "./ui";
 
 export function Rules({ rules, onToggle }: { rules: Rule[]; onToggle: (id: string) => void }) {
   return (
-    <section className="flex min-w-0 flex-1 flex-col">
-      <header className="px-6 pb-4 pt-5">
-        <h1 className="text-[20px] font-semibold tracking-[-0.015em]">Rules</h1>
-        <p className="mt-0.5 text-fg-2">Rules run on new downloads without asking. Tick “Always do this” in the inbox to add one.</p>
-      </header>
-      <div className="flex-1 overflow-y-auto px-6 pb-8">
-        <div className="max-w-[760px]">
-          <div className="mb-4 flex items-start gap-2.5 rounded-[var(--radius-card)] border border-line bg-surface px-4 py-3 text-[12.5px] text-fg-2">
-            <ShieldCheck size={15} className="mt-0.5 shrink-0 text-accent" />
-            Rules only move files between folders inside Downloads. Recycling always waits for your review.
+    <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="mx-auto max-w-[1240px] px-6 pb-12 pt-6">
+        <h1 className="text-[18px] font-semibold tracking-[-0.01em]">Rules</h1>
+        <p className="mt-0.5 max-w-[75ch] text-ink-2">
+          Rules run on new downloads without asking. They only move files between folders inside Downloads. Recycling always waits
+          for you. Add a rule by ticking “Always move files like these” on a group in the inbox.
+        </p>
+
+        <div role="table" aria-label="Rules" className="mt-6">
+          <div
+            role="row"
+            className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_88px_52px] gap-x-4 border-b border-rule-strong px-3 pb-2 text-[12px] text-ink-3"
+          >
+            <span role="columnheader">When a download is</span>
+            <span role="columnheader">Neat does</span>
+            <span role="columnheader" className="text-right">
+              Matched
+            </span>
+            <span role="columnheader" className="text-right">
+              On
+            </span>
           </div>
-          <ul className="divide-y divide-line overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface">
-            {rules.map((rule) => (
-              <li key={rule.id} className={cx("flex items-center gap-4 px-4 py-3 transition-opacity", !rule.enabled && "opacity-50")}>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate">{rule.when}</div>
-                  <div className="flex items-center gap-1.5 text-[12px] text-fg-2">
-                    <ArrowRight size={12} className="text-fg-3" />
-                    {rule.then}
-                  </div>
-                </div>
-                <span className="tabular shrink-0 text-[12px] text-fg-3">{rule.matched} matched</span>
-                <Switch on={rule.enabled} onChange={() => onToggle(rule.id)} label={`Turn ${rule.enabled ? "off" : "on"} rule`} />
-              </li>
-            ))}
-          </ul>
+          {rules.map((rule) => (
+            <div
+              key={rule.id}
+              role="row"
+              className={cx(
+                "grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_88px_52px] items-center gap-x-4 border-b border-rule px-3 py-2.5",
+                !rule.enabled && "text-ink-3",
+              )}
+            >
+              <span className="truncate">
+                {rule.when}
+                {rule.value && <span className="font-mono text-[12px]"> {rule.value}</span>}
+              </span>
+              <span className={cx("truncate", rule.enabled ? "text-ink-2" : "text-ink-3")}>{rule.then}</span>
+              <span className="text-right font-mono text-[12px] text-ink-2">{rule.matched}</span>
+              <span className="flex justify-end">
+                <Switch on={rule.enabled} onChange={() => onToggle(rule.id)} label={rule.when} />
+              </span>
+            </div>
+          ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -45,14 +59,15 @@ function Switch({ on, onChange, label }: { on: boolean; onChange: () => void; la
       aria-label={label}
       onClick={onChange}
       className={cx(
-        "relative flex h-5 w-9 shrink-0 items-center rounded-full px-0.5 transition-colors duration-200",
-        on ? "justify-end bg-accent" : "justify-start bg-surface-4",
+        "relative h-[18px] w-8 shrink-0 rounded-[4px] border transition-colors duration-150",
+        on ? "border-cobalt/60" : "border-rule-strong hover:border-ink-3",
       )}
     >
-      <motion.span
-        layout
-        transition={{ type: "spring", stiffness: 700, damping: 40 }}
-        className={cx("size-4 rounded-full shadow-sm", on ? "bg-accent-ink" : "bg-fg-2")}
+      <span
+        className={cx(
+          "absolute top-[3px] size-2.5 rounded-[2px] transition-[left,background-color] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]",
+          on ? "left-[17px] bg-cobalt" : "left-[3px] bg-ink-3",
+        )}
       />
     </button>
   );

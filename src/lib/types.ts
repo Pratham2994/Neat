@@ -3,15 +3,7 @@
 
 export type ActionKind = "move" | "keep" | "recycle";
 
-export type StackKind =
-  | "installers"
-  | "duplicates"
-  | "versions"
-  | "archive"
-  | "partial"
-  | "stale"
-  | "receipts"
-  | "images";
+export type StackKind = "installers" | "duplicates" | "versions" | "archive" | "partial" | "stale" | "receipts" | "images";
 
 export type Confidence = "high" | "medium" | "low";
 
@@ -57,7 +49,8 @@ export interface ActivityEntry {
 
 export interface Rule {
   id: string;
-  when: string;
+  when: string; // plain words, e.g. "Downloaded from"
+  value?: string; // the typed part, shown in mono, e.g. "hdfcbank.com"
   then: string;
   auto: boolean;
   matched: number;

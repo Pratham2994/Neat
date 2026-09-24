@@ -1,0 +1,491 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-24T16:12:43Z",
+  "title": "Design System: Neat",
+  "extensions": {
+    "colorMeta": {
+      "cobalt": {
+        "role": "primary",
+        "displayName": "Cobalt Stamp",
+        "canonical": "#8aa4ff",
+        "oklch": "oklch(73.7% 0.135 270.7)",
+        "tonalRamp": [
+          "#040033",
+          "#111464",
+          "#273586",
+          "#4255a9",
+          "#6279d1",
+          "#859ff9",
+          "#b7c9ff",
+          "#e8eeff"
+        ]
+      },
+      "cobalt-soft": {
+        "role": "primary",
+        "displayName": "Pale Cobalt",
+        "canonical": "#a9bcff",
+        "oklch": "oklch(80.5% 0.098 271.9)",
+        "tonalRamp": [
+          "#040033",
+          "#151c52",
+          "#2e3a73",
+          "#4a5994",
+          "#6c7cbb",
+          "#8fa1e2",
+          "#b8c8ff",
+          "#e9eeff"
+        ]
+      },
+      "cobalt-deep": {
+        "role": "primary",
+        "displayName": "Cobalt Deep",
+        "canonical": "#0e1330",
+        "oklch": "oklch(20.1% 0.058 272.8)",
+        "tonalRamp": [
+          "#050723",
+          "#1b2140",
+          "#353d5e",
+          "#525c7f",
+          "#747ea3",
+          "#98a3ca",
+          "#bec9f1",
+          "#e9eefe"
+        ]
+      },
+      "brick": {
+        "role": "secondary",
+        "displayName": "Brick",
+        "canonical": "#e5806f",
+        "oklch": "oklch(70.7% 0.128 30.6)",
+        "tonalRamp": [
+          "#1e0100",
+          "#4a0300",
+          "#75190e",
+          "#983b2e",
+          "#c15f50",
+          "#ea8473",
+          "#ffb6a8",
+          "#ffe9e5"
+        ]
+      },
+      "chrome": {
+        "role": "neutral",
+        "displayName": "Desk Black",
+        "canonical": "#0e0d0c",
+        "oklch": "oklch(16.0% 0.003 67.6)",
+        "tonalRamp": [
+          "#0c0b0a",
+          "#252423",
+          "#413f3e",
+          "#5f5d5c",
+          "#81807e",
+          "#a6a4a3",
+          "#cccac9",
+          "#f0eeec"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "Manifest Ground",
+        "canonical": "#121110",
+        "oklch": "oklch(17.8% 0.003 67.7)",
+        "tonalRamp": [
+          "#0c0b0a",
+          "#252423",
+          "#413f3e",
+          "#5f5d5c",
+          "#81807e",
+          "#a6a4a3",
+          "#cccac9",
+          "#f0eeed"
+        ]
+      },
+      "row-hover": {
+        "role": "neutral",
+        "displayName": "Hover Step",
+        "canonical": "#181715",
+        "oklch": "oklch(20.5% 0.004 84.6)",
+        "tonalRamp": [
+          "#0c0b09",
+          "#252422",
+          "#41403d",
+          "#5f5d5b",
+          "#81807d",
+          "#a6a4a2",
+          "#cccac7",
+          "#f0eeeb"
+        ]
+      },
+      "row-selected": {
+        "role": "neutral",
+        "displayName": "Selected Step",
+        "canonical": "#1d1b19",
+        "oklch": "oklch(22.4% 0.005 67.6)",
+        "tonalRamp": [
+          "#0d0b09",
+          "#262421",
+          "#413f3d",
+          "#5f5d5b",
+          "#82807d",
+          "#a7a4a1",
+          "#cdcac7",
+          "#f1eeeb"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#2a2724",
+        "oklch": "oklch(27.5% 0.007 67.5)",
+        "tonalRamp": [
+          "#0d0b08",
+          "#262320",
+          "#423f3c",
+          "#605d59",
+          "#837f7c",
+          "#a8a4a0",
+          "#cecac6",
+          "#f2eeea"
+        ]
+      },
+      "rule-strong": {
+        "role": "neutral",
+        "displayName": "Header Rule",
+        "canonical": "#3b3834",
+        "oklch": "oklch(34.2% 0.008 75.3)",
+        "tonalRamp": [
+          "#0d0b08",
+          "#262420",
+          "#423f3b",
+          "#605d59",
+          "#83807b",
+          "#a8a49f",
+          "#cecac5",
+          "#f2eee9"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Warm Off-White",
+        "canonical": "#ede8e0",
+        "oklch": "oklch(93.3% 0.012 79.8)",
+        "tonalRamp": [
+          "#0e0b06",
+          "#27231e",
+          "#433f39",
+          "#615d56",
+          "#848078",
+          "#a9a49c",
+          "#cfcac2",
+          "#f3eee6"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Pencil Grey",
+        "canonical": "#aba49a",
+        "oklch": "oklch(72.2% 0.016 77.0)",
+        "tonalRamp": [
+          "#0f0a04",
+          "#29231b",
+          "#453f36",
+          "#635d54",
+          "#867f76",
+          "#aaa399",
+          "#d1c9bf",
+          "#f5ede3"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Faint Ink",
+        "canonical": "#8a847b",
+        "oklch": "oklch(61.6% 0.015 78.2)",
+        "tonalRamp": [
+          "#0f0a05",
+          "#28231c",
+          "#443f37",
+          "#625d54",
+          "#857f76",
+          "#aaa49a",
+          "#d0cac0",
+          "#f4ede3"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "wordmark": {
+        "displayName": "Wordmark",
+        "purpose": "\"Neat\" in the top bar. Text only; no logo mark."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The one page title per view (Inbox, Activity, Rules)."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section headings such as \"Done this session\"; Activity day headings use the same weight at 13px."
+      },
+      "title-row": {
+        "displayName": "Row title",
+        "purpose": "The group name on a manifest row."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text, ledger entries, notice lines and tab labels. Tabular figures."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Every action label."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Column headers, summaries under row titles, evidence detail, status strip, key legend."
+      },
+      "label-strong": {
+        "displayName": "Label strong",
+        "purpose": "The verb column in ledgers (Moved, Recycled, Kept, New rule)."
+      },
+      "data": {
+        "displayName": "Data",
+        "purpose": "Hosts, file names, sizes, counts, times and rule patterns, wherever they stand as entries."
+      },
+      "key": {
+        "displayName": "Key",
+        "purpose": "The legend inside a key cap, and nowhere else. The only text below 12px."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "The one ease for every movement: tab underline, row layout, expand, collapse, notices, switch thumb. Defined as --ease-out-expo in styles.css."
+      },
+      {
+        "name": "duration-state",
+        "value": "150ms",
+        "purpose": "Colour and border changes on hover, press and selection."
+      },
+      {
+        "name": "duration-notice",
+        "value": "180ms",
+        "purpose": "A status-strip notice rises 6px into place; it leaves by 4px upwards."
+      },
+      {
+        "name": "duration-settle",
+        "value": "200ms",
+        "purpose": "A decided row folds to zero height and fades; chevron rotation; switch thumb slide; a new Done line fades in."
+      },
+      {
+        "name": "duration-layout",
+        "value": "220ms",
+        "purpose": "Tab underline slide, rows closing up after a removal, details opening, the title travelling into Done."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "user",
+        "purpose": "MotionConfig reducedMotion=\"user\" wraps the app; the system setting turns movement off."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "fold",
+        "value": "1020px",
+        "purpose": "At and below this width, From and Confidence fold into each group's summary line, action slots shrink, key caps leave row buttons."
+      },
+      {
+        "name": "window-min",
+        "value": "900px",
+        "purpose": "Minimum window width (900 by 600) set in tauri.conf.json."
+      },
+      {
+        "name": "window-default",
+        "value": "1180px",
+        "purpose": "Default window size (1180 by 760)."
+      },
+      {
+        "name": "container-max",
+        "value": "1240px",
+        "purpose": "The shared centred container for top bar, page and status strip."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The chosen action at full strength: the selected row's suggestion and the batch Apply button. Label first, key cap after.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Move to Receipts <kbd class=\"ds-key\">Enter</kbd></button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 30px; padding: 0 10px; border-radius: 4px; border: 1px solid transparent; background: transparent; font: 500 13px/1.45 \"Public Sans Variable\", \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif; white-space: nowrap; cursor: default; transition: color 150ms, background-color 150ms, border-color 150ms; } .ds-btn-primary { justify-content: space-between; min-width: 188px; background: var(--color-cobalt, #8aa4ff); color: var(--color-cobalt-deep, #0e1330); } .ds-btn-primary:hover { background: var(--color-cobalt-soft, #a9bcff); } .ds-btn-primary:active { background: var(--color-cobalt, #8aa4ff); } .ds-btn:focus-visible { outline: 2px solid var(--color-cobalt, #8aa4ff); outline-offset: 2px; } .ds-key { display: inline-flex; align-items: center; justify-content: center; height: 17px; min-width: 17px; padding: 0 4px; border-radius: 3px; border: 1px solid color-mix(in oklab, currentColor 30%, transparent); font: 500 10.5px/1 \"Public Sans Variable\", \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif; box-sizing: border-box; }"
+    },
+    {
+      "name": "Suggestion Button",
+      "kind": "button",
+      "refersTo": "button-suggestion",
+      "description": "Neat's suggestion on a row that is not selected: cobalt ink on a cobalt hairline, no fill. Becomes Primary when the row is selected.",
+      "html": "<button class=\"ds-btn ds-btn-suggestion\">Recycle 5</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 30px; padding: 0 10px; border-radius: 4px; border: 1px solid transparent; background: transparent; font: 500 13px/1.45 \"Public Sans Variable\", \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif; white-space: nowrap; cursor: default; transition: color 150ms, background-color 150ms, border-color 150ms; } .ds-btn-suggestion { min-width: 188px; color: var(--color-cobalt-soft, #a9bcff); border-color: color-mix(in oklab, var(--color-cobalt, #8aa4ff) 40%, transparent); } .ds-btn-suggestion:hover { border-color: color-mix(in oklab, var(--color-cobalt, #8aa4ff) 70%, transparent); background: var(--color-row-hover, #181715); } .ds-btn-suggestion:active { background: var(--color-row-selected, #1d1b19); } .ds-btn:focus-visible { outline: 2px solid var(--color-cobalt, #8aa4ff); outline-offset: 2px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "A plain alternative such as Keep or See rules, on a Header Rule border.",
+      "html": "<button class=\"ds-btn ds-btn-outline\">Keep</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 30px; padding: 0 10px; border-radius: 4px; border: 1px solid transparent; background: transparent; font: 500 13px/1.45 \"Public Sans Variable\", \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif; white-space: nowrap; cursor: default; transition: color 150ms, background-color 150ms, border-color 150ms; } .ds-btn-outline { min-width: 80px; color: var(--color-ink, #ede8e0); border-color: var(--color-rule-strong, #3b3834); } .ds-btn-outline:hover { border-color: var(--color-ink-3, #8a847b); background: var(--color-row-hover, #181715); } .ds-btn-outline:active { background: var(--color-row-selected, #1d1b19); } .ds-btn:focus-visible { outline: 2px solid var(--color-cobalt, #8aa4ff); outline-offset: 2px; }"
+    },
+    {
+      "name": "Recycle Button",
+      "kind": "button",
+      "refersTo": "button-recycle",
+      "description": "The Recycle alternative. Outline at rest; brick only on hover and press, because brick appears only on recycle.",
+      "html": "<button class=\"ds-btn ds-btn-recycle\">Recycle</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 30px; padding: 0 10px; border-radius: 4px; border: 1px solid transparent; background: transparent; font: 500 13px/1.45 \"Public Sans Variable\", \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif; white-space: nowrap; cursor: default; transition: color 150ms, background-color 150ms, border-color 150ms; } .ds-btn-recycle { min-width: 96px; color: var(--color-ink, #ede8e0); border-color: var(--color-rule-strong, #3b3834); } .ds-btn-recycle:hover { color: var(--color-brick, #e5806f); border-color: color-mix(in oklab, var(--color-brick, #e5806f) 60%, transparent); } .ds-btn-recycle:active { background: color-mix(in oklab, var(--color-brick, #e5806f) 10%, transparent); } .ds-btn:focus-visible { outline: 2px solid var(--color-cobalt, #8aa4ff); outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Quiet secondary actions: Scan now, View, Undo, Undo all. No border until hovered.",
+      "html": "<button class=\"ds-btn ds-btn-ghost\">Undo all</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 30px; padding: 0 10px; border-radius: 4px; border: 1px solid transparent; background: transparent; font: 500 13px/1.45 \"Public Sans Variable\", \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif; white-space: nowrap; cursor: default; transition: color 150ms, background-color 150ms, border-color 150ms; } .ds-btn-ghost { color: var(--color-ink-2, #aba49a); } .ds-btn-ghost:hover { background: var(--color-row-hover, #181715); color: var(--color-ink, #ede8e0); } .ds-btn-ghost:active { background: var(--color-row-selected, #1d1b19); } .ds-btn:focus-visible { outline: 2px solid var(--color-cobalt, #8aa4ff); outline-offset: 2px; } .ds-btn:disabled { opacity: 0.4; pointer-events: none; }"
+    },
+    {
+      "name": "Key Cap",
+      "kind": "chip",
+      "refersTo": "key",
+      "description": "A keyboard key drawn as a small hairline box that inherits the ink of whatever holds it. Used in buttons and the key legend.",
+      "html": "<span class=\"ds-legend\"><kbd class=\"ds-key\">Enter</kbd> Apply <kbd class=\"ds-key\">K</kbd> Keep <kbd class=\"ds-key\">R</kbd> Recycle <kbd class=\"ds-key\">Z</kbd> Undo</span>",
+      "css": ".ds-legend { display: inline-flex; align-items: center; gap: 6px; padding: 10px 14px; background: var(--color-chrome, #0e0d0c); color: var(--color-ink-2, #aba49a); font: 400 12px/1.45 \"Public Sans Variable\", \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif; } .ds-key { display: inline-flex; align-items: center; justify-content: center; height: 17px; min-width: 17px; padding: 0 4px; border-radius: 3px; border: 1px solid color-mix(in oklab, currentColor 30%, transparent); font: 500 10.5px/1 \"Public Sans Variable\", \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif; box-sizing: border-box; }"
+    },
+    {
+      "name": "Section Tabs",
+      "kind": "nav",
+      "refersTo": "tab",
+      "description": "Text tabs in the Desk Black top bar beside the wordmark; the active tab carries a 2px cobalt underline on the bar's bottom rule.",
+      "html": "<header class=\"ds-topbar\"><span class=\"ds-wordmark\">Neat</span><nav class=\"ds-tabs\"><a class=\"ds-tab\" aria-current=\"page\" href=\"#\">Inbox <span class=\"ds-tab-count\">8</span></a><a class=\"ds-tab\" href=\"#\">Activity</a><a class=\"ds-tab\" href=\"#\">Rules</a></nav></header>",
+      "css": ".ds-topbar { display: flex; align-items: stretch; gap: 28px; height: 48px; padding: 0 24px; background: var(--color-chrome, #0e0d0c); border-bottom: 1px solid var(--color-rule, #2a2724); font-family: \"Public Sans Variable\", \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif; } .ds-wordmark { align-self: center; color: var(--color-ink, #ede8e0); font-size: 15px; font-weight: 700; letter-spacing: -0.02em; } .ds-tabs { display: flex; align-items: stretch; gap: 20px; } .ds-tab { position: relative; display: flex; align-items: center; gap: 6px; color: var(--color-ink-2, #aba49a); font-size: 13px; text-decoration: none; transition: color 150ms; } .ds-tab:hover, .ds-tab[aria-current=page] { color: var(--color-ink, #ede8e0); } .ds-tab[aria-current=page]::after { content: \"\"; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--color-cobalt, #8aa4ff); } .ds-tab-count { color: var(--color-ink-3, #8a847b); } .ds-tab:focus-visible { outline: 2px solid var(--color-cobalt, #8aa4ff); outline-offset: 2px; }"
+    },
+    {
+      "name": "Manifest Row",
+      "kind": "custom",
+      "refersTo": "manifest-row",
+      "description": "The signature component: one consignment per row on the shared column template, with origin, weight, a confidence word and fixed action slots. Ground steps show hover and selection.",
+      "html": "<div class=\"ds-row\" aria-selected=\"true\"><span class=\"ds-row-group\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 12 12\" aria-hidden=\"true\"><path d=\"M4.5 2.5 8 6l-3.5 3.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg><span><span class=\"ds-row-title\">Receipts and invoices</span><span class=\"ds-row-summary\">From amazon.in, flipkart.com, swiggy.com</span></span></span><span class=\"ds-data\">amazon.in +2</span><span class=\"ds-data ds-num\">6</span><span class=\"ds-data ds-num\">922 KB</span><span class=\"ds-conf\"></span><span class=\"ds-slots\"><button class=\"ds-btn ds-btn-primary\">Move to Receipts <kbd class=\"ds-key\">Enter</kbd></button><button class=\"ds-btn ds-btn-outline\">Keep <kbd class=\"ds-key\">K</kbd></button><button class=\"ds-btn ds-btn-recycle\">Recycle <kbd class=\"ds-key\">R</kbd></button></span></div><div class=\"ds-row\"><span class=\"ds-row-group\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 12 12\" aria-hidden=\"true\"><path d=\"M4.5 2.5 8 6l-3.5 3.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg><span><span class=\"ds-row-title\">Installers for apps you already have</span><span class=\"ds-row-summary\">Figma, VS Code, Python, Zoom, Discord</span></span></span><span class=\"ds-data\">figma.com +4</span><span class=\"ds-data ds-num\">5</span><span class=\"ds-data ds-num\">522 MB</span><span class=\"ds-conf\">Sure</span><span class=\"ds-slots\"><button class=\"ds-btn ds-btn-suggestion\">Recycle 5</button><button class=\"ds-btn ds-btn-outline\">Keep</button><span></span></span></div>",
+      "css": ".ds-row { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,150px) 48px 76px 56px 376px; align-items: center; column-gap: 16px; padding: 12px; background: var(--color-ground, #121110); border-bottom: 1px solid var(--color-rule, #2a2724); color: var(--color-ink, #ede8e0); font: 400 13px/1.45 \"Public Sans Variable\", \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif; font-variant-numeric: tabular-nums; transition: background-color 150ms; } .ds-row:hover { background: var(--color-row-hover, #181715); } .ds-row[aria-selected=true] { background: var(--color-row-selected, #1d1b19); } .ds-row-group { display: flex; align-items: flex-start; gap: 8px; min-width: 0; } .ds-row-group svg { margin-top: 4px; flex-shrink: 0; color: var(--color-ink-3, #8a847b); } .ds-row-title { display: block; font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-row-summary { display: block; font-size: 12px; color: var(--color-ink-2, #aba49a); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-data { font: 400 12px/1.45 \"JetBrains Mono Variable\", \"Cascadia Mono\", Consolas, monospace; color: var(--color-ink-2, #aba49a); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-num { text-align: right; } .ds-conf { font-size: 12px; color: var(--color-ink-2, #aba49a); } .ds-slots { display: grid; grid-template-columns: 188px 80px 96px; gap: 6px; } .ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 30px; padding: 0 10px; border-radius: 4px; border: 1px solid transparent; background: transparent; font: 500 13px/1.45 \"Public Sans Variable\", \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif; white-space: nowrap; cursor: default; transition: color 150ms, background-color 150ms, border-color 150ms; justify-content: space-between; } .ds-btn:focus-visible { outline: 2px solid var(--color-cobalt, #8aa4ff); outline-offset: 2px; } .ds-btn-primary { background: var(--color-cobalt, #8aa4ff); color: var(--color-cobalt-deep, #0e1330); } .ds-btn-primary:hover { background: var(--color-cobalt-soft, #a9bcff); } .ds-btn-suggestion { justify-content: center; color: var(--color-cobalt-soft, #a9bcff); border-color: color-mix(in oklab, var(--color-cobalt, #8aa4ff) 40%, transparent); } .ds-btn-suggestion:hover { border-color: color-mix(in oklab, var(--color-cobalt, #8aa4ff) 70%, transparent); background: var(--color-row-hover, #181715); } .ds-btn-outline, .ds-btn-recycle { color: var(--color-ink, #ede8e0); border-color: var(--color-rule-strong, #3b3834); } .ds-btn-outline:hover { border-color: var(--color-ink-3, #8a847b); background: var(--color-row-hover, #181715); } .ds-btn-recycle:hover { color: var(--color-brick, #e5806f); border-color: color-mix(in oklab, var(--color-brick, #e5806f) 60%, transparent); } .ds-key { display: inline-flex; align-items: center; justify-content: center; height: 17px; min-width: 17px; padding: 0 4px; border-radius: 3px; border: 1px solid color-mix(in oklab, currentColor 30%, transparent); font: 500 10.5px/1 \"Public Sans Variable\", \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif; box-sizing: border-box; }"
+    },
+    {
+      "name": "Ledger Line",
+      "kind": "custom",
+      "refersTo": "ledger-line",
+      "description": "The settled form of a decision in Activity and Done this session: verb coloured by action, what happened, files and bytes in mono, and a ghost Undo.",
+      "html": "<ul class=\"ds-ledger\"><li><span class=\"ds-time\">16:10</span><span class=\"ds-verb ds-verb-recycle\">Recycled</span><span class=\"ds-what\">Installers for apps you already have</span><span class=\"ds-amount\">5 files, 522 MB</span><button class=\"ds-undo\">Undo</button></li><li><span class=\"ds-time\">15:27</span><span class=\"ds-verb ds-verb-move\">Moved</span><span class=\"ds-what\">8 bank statements to Finance/Bank</span><span class=\"ds-amount\">8 files, 3.0 MB</span><button class=\"ds-undo\">Undo</button></li><li class=\"ds-undone\"><span class=\"ds-time\">14:04</span><span class=\"ds-verb\">Moved</span><span class=\"ds-what\">4 screenshots to Images/Screenshots</span><span class=\"ds-amount\">4 files, 9.0 MB</span><span class=\"ds-undone-word\">Undone</span></li></ul>",
+      "css": ".ds-ledger { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-rule-strong, #3b3834); background: var(--color-ground, #121110); color: var(--color-ink, #ede8e0); font: 400 13px/1.45 \"Public Sans Variable\", \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif; font-variant-numeric: tabular-nums; } .ds-ledger li { display: grid; grid-template-columns: 52px 84px minmax(0,1fr) auto 72px; align-items: center; column-gap: 16px; padding: 8px 0 8px 12px; border-bottom: 1px solid var(--color-rule, #2a2724); } .ds-time, .ds-amount { font: 400 12px/1.45 \"JetBrains Mono Variable\", \"Cascadia Mono\", Consolas, monospace; color: var(--color-ink-3, #8a847b); } .ds-verb { font-size: 12px; font-weight: 500; } .ds-verb-move { color: var(--color-cobalt-soft, #a9bcff); } .ds-verb-recycle { color: var(--color-brick, #e5806f); } .ds-what { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-undo { justify-self: end; height: 30px; padding: 0 10px; border: 0; border-radius: 4px; background: transparent; color: var(--color-ink-2, #aba49a); font: 500 13px/1.45 \"Public Sans Variable\", \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif; transition: color 150ms, background-color 150ms; } .ds-undo:hover { background: var(--color-row-hover, #181715); color: var(--color-ink, #ede8e0); } .ds-undo:focus-visible { outline: 2px solid var(--color-cobalt, #8aa4ff); outline-offset: 2px; } .ds-undone, .ds-undone .ds-verb { color: var(--color-ink-3, #8a847b); } .ds-undone .ds-what { text-decoration: line-through; text-decoration-color: color-mix(in oklab, var(--color-ink-3, #8a847b) 60%, transparent); } .ds-undone-word { justify-self: end; padding: 0 10px; font-size: 12px; color: var(--color-ink-3, #8a847b); }"
+    },
+    {
+      "name": "Switch",
+      "kind": "input",
+      "refersTo": "switch",
+      "description": "A rectangular on/off switch for rules: 32 by 18px, square thumb, cobalt only when on.",
+      "html": "<button class=\"ds-switch\" role=\"switch\" aria-checked=\"true\" aria-label=\"Rule on\"><span></span></button> <button class=\"ds-switch\" role=\"switch\" aria-checked=\"false\" aria-label=\"Rule off\"><span></span></button>",
+      "css": ".ds-switch { position: relative; width: 32px; height: 18px; padding: 0; border-radius: 4px; border: 1px solid var(--color-rule-strong, #3b3834); background: transparent; transition: border-color 150ms; } .ds-switch:hover { border-color: var(--color-ink-3, #8a847b); } .ds-switch span { position: absolute; top: 3px; left: 3px; width: 10px; height: 10px; border-radius: 2px; background: var(--color-ink-3, #8a847b); transition: left 200ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-switch[aria-checked=true] { border-color: color-mix(in oklab, var(--color-cobalt, #8aa4ff) 60%, transparent); } .ds-switch[aria-checked=true] span { left: 17px; background: var(--color-cobalt, #8aa4ff); } .ds-switch:focus-visible { outline: 2px solid var(--color-cobalt, #8aa4ff); outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Manifest",
+    "overview": "Downloads are consignments arriving at a desk. Each one is entered on a ruled manifest with its origin, contents and weight, and each gets one disposition. The whole window is that manifest: a warm near-black sheet ruled with hairlines, warm off-white ink, and a single cobalt stamp for the action being taken. Nothing floats above the sheet. There are no cards, no panels, no shadows and no glow; structure comes from rules, alignment and a few steps of ground.\n\nDensity is that of a working ledger rather than a dashboard. Body text sits at 13px, figures are tabular, numeric columns are right-aligned, and every typed entry (a host, a file name, a size, a count, a time, a rule pattern) is set in monospace so it reads as recorded data rather than prose. Actions are words with their keys beside them, sized for a mouse and mirrored on the keyboard. Motion is short and purposeful: a decided row folds shut and its title settles into the ledger below, so the manifest visibly empties.\n\nThe world is dark only. It rejects the sidebar, list and detail pane with icon tiles, the generic dark-SaaS look, glow effects and decorative icon tiles.",
+    "keyCharacteristics": [
+      "Warm near-black ground in four close steps; chrome sits one step darker than the manifest.",
+      "Hairline rules are the only structure. No cards, no shadows.",
+      "One cobalt ink for the chosen action and its states; brick only on recycle.",
+      "Public Sans for words, JetBrains Mono for typed data, tabular figures throughout.",
+      "Rectangular 4px controls labelled with words, each paired with its key.",
+      "One shared column template, so every figure lines up from header to total."
+    ],
+    "rules": [
+      {
+        "name": "The One Ink Rule",
+        "body": "Cobalt marks the chosen action and the states that follow from it: selected, active, on, focused, applied, moved. It never decorates, never heads a section and never colours an inert word.",
+        "section": "colors"
+      },
+      {
+        "name": "The Suggestion Is Cobalt Rule",
+        "body": "Neat's suggestion always takes the cobalt slot, whatever its verb. \"Recycle 5\" as a suggestion is cobalt; brick belongs to the alternative Recycle button and to recycling already done.",
+        "section": "colors"
+      },
+      {
+        "name": "The Brick Is Recycle Rule",
+        "body": "Brick appears only on recycle. It is not a general danger, error or warning colour.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ground Step Rule",
+        "body": "State is shown by stepping the ground (ground, then hover step, then selected step), never by adding a border, a tint of the accent or a glow.",
+        "section": "colors"
+      },
+      {
+        "name": "The Mono Is Data Rule",
+        "body": "Monospace is for typed entries only: hosts, file names, sizes, counts, times, rule patterns. Never for labels, headings, prose or key caps.",
+        "section": "typography"
+      },
+      {
+        "name": "The Twelve Floor Rule",
+        "body": "No text is smaller than 12px except the legend inside a key cap (10.5px).",
+        "section": "typography"
+      },
+      {
+        "name": "The Figures Align Rule",
+        "body": "Figures are tabular everywhere and right-aligned in numeric columns, so sizes and counts read down the page like a ledger.",
+        "section": "typography"
+      },
+      {
+        "name": "The Shared Column Rule",
+        "body": "The column header, every row, the total line and every expanded file line sit on one column template. A new column is added to the template, never to a single row.",
+        "section": "layout"
+      },
+      {
+        "name": "The Fixed Slot Rule",
+        "body": "Each action verb owns a slot and keeps it. A missing action leaves its slot empty rather than shifting its neighbours.",
+        "section": "layout"
+      },
+      {
+        "name": "The Fold, Don't Squeeze Rule",
+        "body": "When width runs out, secondary columns fold into the summary line in their own type (mono stays mono). Columns are never squeezed into truncated slivers.",
+        "section": "layout"
+      },
+      {
+        "name": "The Hairline Rule",
+        "body": "Hairlines are the only structure. No cards, no filled panels, no boxed groups; if something needs separating, it gets a rule or a step of ground.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Flat Sheet Rule",
+        "body": "Nothing casts a shadow. A surface that seems to need one needs a ground step instead.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** separate everything with 1px hairlines: Hairline between rows and lines, Header Rule under column headers and section headings.",
+      "**Do** show hover and selection by stepping the ground (row-hover, then row-selected), per the Ground Step Rule.",
+      "**Do** set hosts, file names, sizes, counts, times and rule patterns in JetBrains Mono at 12px wherever they stand as entries in a column, ledger or summary; figures inside a sentence stay in Public Sans.",
+      "**Do** keep figures tabular and right-align numeric columns.",
+      "**Do** write actions as words with their object (\"Move to Receipts\", \"Recycle 5\", \"Keep\") and pair each with its key cap on the selected row.",
+      "**Do** put every row, header, total and expanded file line on the one shared column template, and keep each action in its fixed slot.",
+      "**Do** open detail in place under its row, on the row's own columns.",
+      "**Do** fold secondary columns into the summary line at 1020px and below rather than squeezing them.",
+      "**Do** animate only with the expo-out ease at 150 to 220ms, and respect the system's reduced-motion setting."
+    ],
+    "donts": [
+      "**Don't** use cards, filled panels, drop shadows or glow.",
+      "**Don't** add decorative icon tiles, filled icon backgrounds or icons that stand in for a word label.",
+      "**Don't** use cobalt for anything that is not an action or the state of one.",
+      "**Don't** use brick for anything but recycling, including errors and warnings.",
+      "**Don't** set readable text below 12px outside a key cap, or fainter than Faint Ink; only disabled controls (40% opacity) go lower.",
+      "**Don't** round corners beyond 4px or use pills; the only circle is the watching dot.",
+      "**Don't** show confidence as a badge, bar or percentage; it is a word.",
+      "**Don't** number manifest rows."
+    ]
+  }
+}

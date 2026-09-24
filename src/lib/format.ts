@@ -52,3 +52,15 @@ export function dayLabel(iso: string, now = new Date()): string {
   if (diff === 1) return "Yesterday";
   return dayFormat.format(date);
 }
+
+const weekdayFormat = new Intl.DateTimeFormat("en-GB", { weekday: "long" });
+const shortDateFormat = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" });
+
+// "Since Tuesday", for the time since the last visit.
+export function sinceLabel(iso: string, now = new Date()): string {
+  const label = dayLabel(iso, now);
+  if (label === "Today") return "Since earlier today";
+  if (label === "Yesterday") return "Since yesterday";
+  const days = (now.getTime() - new Date(iso).getTime()) / 86400000;
+  return `Since ${days < 7 ? weekdayFormat.format(new Date(iso)) : shortDateFormat.format(new Date(iso))}`;
+}

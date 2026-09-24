@@ -1,39 +1,37 @@
-@import "@fontsource-variable/inter";
+@import "@fontsource-variable/public-sans";
+@import "@fontsource-variable/jetbrains-mono";
 @import "tailwindcss";
 
-/* Design tokens. Components use these through Tailwind utilities (bg-surface, text-fg-2, ...). */
+/* Design tokens. Components use these through Tailwind utilities (bg-ground, text-ink-2, border-rule, ...). */
 @theme {
-  --font-sans: "Inter Variable", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Public Sans Variable", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  /* Mono is for data only: origin hosts, file names, sizes. */
+  --font-mono: "JetBrains Mono Variable", "Cascadia Mono", Consolas, monospace;
 
-  /* Surfaces, darkest to lightest. Each step is a small lift so layers read without heavy borders. */
-  --color-bg: #0b0c0f;
-  --color-sidebar: #0e0f13;
-  --color-surface: #131519;
-  --color-surface-2: #181b20;
-  --color-surface-3: #1e2127;
-  --color-surface-4: #262a31;
+  /* Warm near-black grounds. Chrome (top bar, status strip) sits one step darker than the manifest. */
+  --color-chrome: #0e0d0c;
+  --color-ground: #121110;
+  --color-row-hover: #181715;
+  --color-row-selected: #1d1b19;
 
-  --color-line: rgb(255 255 255 / 0.06);
-  --color-line-strong: rgb(255 255 255 / 0.1);
+  /* Hairlines are the only structure. */
+  --color-rule: #2a2724;
+  --color-rule-strong: #3b3834;
 
-  --color-fg: #ececef;
-  --color-fg-2: #a2a5ae;
-  --color-fg-3: #6b6f79;
+  /* Warm off-white ink. ink-3 is the lowest step that still passes 4.5:1 on every ground. */
+  --color-ink: #ede8e0;
+  --color-ink-2: #aba49a;
+  --color-ink-3: #8a847b;
 
-  /* One accent. Mint reads as "clean" and stays distinct from the red used for recycle. */
-  --color-accent: #4fd8a4;
-  --color-accent-strong: #6be3b5;
-  --color-accent-ink: #04140d;
+  /* One ink for the chosen action. */
+  --color-cobalt: #8aa4ff;
+  --color-cobalt-soft: #a9bcff;
+  --color-cobalt-deep: #0e1330;
 
-  --color-danger: #f2766d;
-  --color-warn: #e4b454;
-  --color-info: #74aefc;
-  --color-violet: #b69af2;
-  --color-cyan: #5fd2da;
-  --color-orange: #ef9458;
+  /* Brick appears only on recycle. */
+  --color-brick: #e5806f;
 
-  --radius-card: 12px;
-  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer base {
@@ -45,12 +43,12 @@
 
   body {
     margin: 0;
-    background: var(--color-bg);
-    color: var(--color-fg);
+    background: var(--color-ground);
+    color: var(--color-ink);
     font-family: var(--font-sans);
     font-size: 13px;
     line-height: 1.45;
-    font-feature-settings: "cv11", "ss01", "ss03";
+    font-variant-numeric: tabular-nums;
     -webkit-font-smoothing: antialiased;
     /* Desktop app: no text selection on chrome, no rubber-band scrolling. */
     user-select: none;
@@ -59,26 +57,28 @@
   }
 
   ::selection {
-    background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+    background: color-mix(in srgb, var(--color-cobalt) 32%, transparent);
+    color: var(--color-ink);
   }
 
   button {
     cursor: default;
+    font: inherit;
   }
 
   :focus-visible {
-    outline: 2px solid color-mix(in srgb, var(--color-accent) 70%, transparent);
+    outline: 2px solid var(--color-cobalt);
     outline-offset: 2px;
+  }
+
+  input[type="checkbox"] {
+    accent-color: var(--color-cobalt);
   }
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgb(255 255 255 / 0.1) transparent;
+    scrollbar-color: var(--color-rule-strong) transparent;
   }
-}
-
-@utility tabular {
-  font-variant-numeric: tabular-nums;
 }
 
 @utility selectable {

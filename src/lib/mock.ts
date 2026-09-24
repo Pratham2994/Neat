@@ -25,8 +25,22 @@ export const mockStacks: Stack[] = [
     ],
     files: [
       { id: "f1", name: "Figma-124.1.2.exe", size: 186 * MB, modified: ago(41), source: "figma.com", note: "Installed: 124.3" },
-      { id: "f2", name: "VSCodeUserSetup-x64-1.104.0.exe", size: 102 * MB, modified: ago(38), source: "code.visualstudio.com", note: "Installed: 1.105" },
-      { id: "f3", name: "python-3.13.5-amd64.exe", size: 28 * MB, modified: ago(73), source: "python.org", note: "Installed: 3.13.7" },
+      {
+        id: "f2",
+        name: "VSCodeUserSetup-x64-1.104.0.exe",
+        size: 102 * MB,
+        modified: ago(38),
+        source: "code.visualstudio.com",
+        note: "Installed: 1.105",
+      },
+      {
+        id: "f3",
+        name: "python-3.13.5-amd64.exe",
+        size: 28 * MB,
+        modified: ago(73),
+        source: "python.org",
+        note: "Installed: 3.13.7",
+      },
       { id: "f4", name: "ZoomInstallerFull.msi", size: 94 * MB, modified: ago(120), source: "zoom.us", note: "Installed: 6.4.1" },
       { id: "f5", name: "DiscordSetup.exe", size: 112 * MB, modified: ago(95), source: "discord.com", note: "Installed" },
     ],
@@ -42,7 +56,7 @@ export const mockStacks: Stack[] = [
     evidence: [
       { text: "Downloaded from 3 shopping sites", detail: "amazon.in, flipkart.com, swiggy.com" },
       { text: "Names contain \u201cinvoice\u201d or \u201corder\u201d" },
-      { text: "No rule yet", detail: "Tick \u201cAlways do this\u201d and Neat will file these by itself" },
+      { text: "No rule covers these yet", detail: "Tick \u201cAlways move files like these\u201d and Neat files them by itself next time" },
     ],
     files: [
       { id: "f6", name: "Invoice_402-8831127-4432.pdf", size: 0.2 * MB, modified: ago(2), source: "amazon.in" },
@@ -65,9 +79,30 @@ export const mockStacks: Stack[] = [
       { text: "Keeps the copy with the original name" },
     ],
     files: [
-      { id: "f12", name: "Semester 5 Timetable.pdf", size: 1.4 * MB, modified: ago(58), source: "classroom.google.com", fate: "kept" },
-      { id: "f13", name: "Semester 5 Timetable (1).pdf", size: 1.4 * MB, modified: ago(44), source: "classroom.google.com", fate: "affected" },
-      { id: "f14", name: "Semester 5 Timetable (2).pdf", size: 1.4 * MB, modified: ago(12), source: "classroom.google.com", fate: "affected" },
+      {
+        id: "f12",
+        name: "Semester 5 Timetable.pdf",
+        size: 1.4 * MB,
+        modified: ago(58),
+        source: "classroom.google.com",
+        fate: "kept",
+      },
+      {
+        id: "f13",
+        name: "Semester 5 Timetable (1).pdf",
+        size: 1.4 * MB,
+        modified: ago(44),
+        source: "classroom.google.com",
+        fate: "affected",
+      },
+      {
+        id: "f14",
+        name: "Semester 5 Timetable (2).pdf",
+        size: 1.4 * MB,
+        modified: ago(12),
+        source: "classroom.google.com",
+        fate: "affected",
+      },
     ],
   },
   {
@@ -84,7 +119,14 @@ export const mockStacks: Stack[] = [
       { text: "All from classroom.google.com", detail: "Your rule files this site under University" },
     ],
     files: [
-      { id: "f15", name: "DBMS_Project_Report_final_v2.docx", size: 2.1 * MB, modified: ago(6), source: "classroom.google.com", note: "Newest" },
+      {
+        id: "f15",
+        name: "DBMS_Project_Report_final_v2.docx",
+        size: 2.1 * MB,
+        modified: ago(6),
+        source: "classroom.google.com",
+        note: "Newest",
+      },
       { id: "f16", name: "DBMS_Project_Report_final.docx", size: 2.0 * MB, modified: ago(8), source: "classroom.google.com" },
       { id: "f17", name: "DBMS_Project_Report (1).docx", size: 1.7 * MB, modified: ago(15), source: "classroom.google.com" },
       { id: "f18", name: "DBMS_Project_Report.docx", size: 1.6 * MB, modified: ago(19), source: "classroom.google.com" },
@@ -115,10 +157,7 @@ export const mockStacks: Stack[] = [
     action: "move",
     destination: "Images",
     confidence: "medium",
-    evidence: [
-      { text: "All files are images" },
-      { text: "Downloaded from stock photo sites" },
-    ],
+    evidence: [{ text: "All files are images" }, { text: "Downloaded from stock photo sites" }],
     files: [
       { id: "f21", name: "pawel-czerwinski-6lQDFGOB1iw-unsplash.jpg", size: 4.2 * MB, modified: ago(3), source: "unsplash.com" },
       { id: "f22", name: "pexels-eberhardgross-1062249.jpg", size: 6.8 * MB, modified: ago(11), source: "pexels.com" },
@@ -133,10 +172,7 @@ export const mockStacks: Stack[] = [
     summary: "2 downloads the browser never completed",
     action: "recycle",
     confidence: "high",
-    evidence: [
-      { text: "The browser stopped these downloads" },
-      { text: "No change in 3 weeks" },
-    ],
+    evidence: [{ text: "The browser stopped these downloads" }, { text: "No change in 3 weeks" }],
     files: [
       { id: "f25", name: "Unconfirmed 481223.crdownload", size: 734 * MB, modified: ago(22) },
       { id: "f26", name: "dataset-full.tar.gz.crdownload", size: 1.3 * GB, modified: ago(25) },
@@ -163,20 +199,92 @@ export const mockStacks: Stack[] = [
 ];
 
 export const mockActivity: ActivityEntry[] = [
-  { id: "a1", at: ago(0, 0, 42), action: "move", auto: true, title: "8 bank statements", count: 8, bytes: 3 * MB, destination: "Finance/Bank" },
-  { id: "a2", at: ago(0, 2, 5), action: "move", auto: true, title: "4 screenshots", count: 4, bytes: 9 * MB, destination: "Images/Screenshots" },
+  {
+    id: "a1",
+    at: ago(0, 0, 42),
+    action: "move",
+    auto: true,
+    title: "8 bank statements",
+    count: 8,
+    bytes: 3 * MB,
+    destination: "Finance/Bank",
+  },
+  {
+    id: "a2",
+    at: ago(0, 2, 5),
+    action: "move",
+    auto: true,
+    title: "4 screenshots",
+    count: 4,
+    bytes: 9 * MB,
+    destination: "Images/Screenshots",
+  },
   { id: "a3", at: ago(1, 3), action: "recycle", auto: false, title: "Old Chrome installers", count: 3, bytes: 410 * MB },
-  { id: "a4", at: ago(1, 5), action: "move", auto: true, title: "Assignment 4 brief.pdf", count: 1, bytes: 1 * MB, destination: "University" },
-  { id: "a5", at: ago(3, 1), action: "rule", auto: false, title: "Files from hdfcbank.com", count: 0, bytes: 0, destination: "Finance/Bank" },
-  { id: "a6", at: ago(3, 1, 2), action: "move", auto: false, title: "HDFC statements", count: 14, bytes: 6 * MB, destination: "Finance/Bank" },
+  {
+    id: "a4",
+    at: ago(1, 5),
+    action: "move",
+    auto: true,
+    title: "Assignment 4 brief.pdf",
+    count: 1,
+    bytes: 1 * MB,
+    destination: "University",
+  },
+  {
+    id: "a5",
+    at: ago(3, 1),
+    action: "rule",
+    auto: false,
+    title: "Files from hdfcbank.com",
+    count: 0,
+    bytes: 0,
+    destination: "Finance/Bank",
+  },
+  {
+    id: "a6",
+    at: ago(3, 1, 2),
+    action: "move",
+    auto: false,
+    title: "HDFC statements",
+    count: 14,
+    bytes: 6 * MB,
+    destination: "Finance/Bank",
+  },
 ];
 
 export const mockRules: Rule[] = [
-  { id: "r1", when: "Downloaded from hdfcbank.com", then: "Move to Finance/Bank", auto: true, matched: 22, enabled: true },
-  { id: "r2", when: "Downloaded from classroom.google.com", then: "Move to University", auto: true, matched: 117, enabled: true },
-  { id: "r3", when: "Screenshot images (Screenshot*.png)", then: "Move to Images/Screenshots", auto: true, matched: 64, enabled: true },
-  { id: "r4", when: "Torrent files (*.torrent)", then: "Never suggest", auto: false, matched: 9, enabled: true },
+  {
+    id: "r1",
+    when: "Downloaded from",
+    value: "hdfcbank.com",
+    then: "Move to Finance/Bank",
+    auto: true,
+    matched: 22,
+    enabled: true,
+  },
+  {
+    id: "r2",
+    when: "Downloaded from",
+    value: "classroom.google.com",
+    then: "Move to University",
+    auto: true,
+    matched: 117,
+    enabled: true,
+  },
+  {
+    id: "r3",
+    when: "Name matches",
+    value: "Screenshot*.png",
+    then: "Move to Images/Screenshots",
+    auto: true,
+    matched: 64,
+    enabled: true,
+  },
+  { id: "r4", when: "Name matches", value: "*.torrent", then: "Never suggest", auto: false, matched: 9, enabled: true },
 ];
+
+// When the user last opened Neat on this machine.
+export const mockLastSession = ago(3, 2);
 
 export const mockFolder: FolderStatus = {
   path: "C:\\Users\\Pratham\\Downloads",
