@@ -82,7 +82,11 @@ pub fn dir_size(path: &Path) -> u64 {
     dir_files(path).iter().map(|(_, size)| size).sum()
 }
 
-/// Every file under `path`, as ("relative/path/with/slashes", size).
+/// Folders past this many files (an extracted repository with node_modules, say) are measured approximately.
+/// Walking them in full on every scan would make Neat slow for no benefit.
+const WALK_LIMIT: usize = 20_000;
+
+/// Files under `path`, as ("relative/path/with/slashes", size), up to `WALK_LIMIT` of them.
 pub fn dir_files(path: &Path) -> Vec<(String, u64)> {
     let mut out = Vec::new();
     let mut stack = vec![(path.to_path_buf(), String::new())];
@@ -96,6 +100,9 @@ pub fn dir_files(path: &Path) -> Vec<(String, u64)> {
                 stack.push((item.path(), rel));
             } else if meta.is_file() {
                 out.push((rel, meta.len()));
+                if out.len() >= WALK_LIMIT {
+                    return out;
+                }
             }
         }
     }

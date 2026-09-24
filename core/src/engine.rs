@@ -71,6 +71,8 @@ pub struct Neat {
     root: PathBuf,
     db: Connection,
     pub installed: Vec<InstalledApp>,
+    /// Set by the shell when its folder watcher is running.
+    pub watching: bool,
     /// Groups from the last scan, by id. Decisions refer to these.
     stacks: HashMap<String, Stack>,
 }
@@ -79,7 +81,7 @@ impl Neat {
     pub fn open(root: impl Into<PathBuf>, db_path: impl AsRef<Path>) -> Result<Self> {
         let db = Connection::open(db_path)?;
         db.execute_batch(SCHEMA)?;
-        Ok(Self { root: root.into(), db, installed: installers::installed_apps(), stacks: HashMap::new() })
+        Ok(Self { root: root.into(), db, installed: installers::installed_apps(), watching: false, stacks: HashMap::new() })
     }
 
     pub fn root(&self) -> &Path {
@@ -106,9 +108,20 @@ impl Neat {
         self.set_meta("last_session", &now_rfc3339())
     }
 
-    /// Runs the rules, then groups whatever is left for review.
+    /// Whether rules move matching files without asking. On by default.
+    pub fn auto_rules(&self) -> Result<bool> {
+        Ok(self.meta("auto_rules")?.as_deref() != Some("off"))
+    }
+
+    pub fn set_auto_rules(&self, on: bool) -> Result<()> {
+        self.set_meta("auto_rules", if on { "on" } else { "off" })
+    }
+
+    /// Runs the rules (when automatic rules are on), then groups whatever is left for review.
     pub fn scan(&mut self) -> Result<Inbox> {
-        self.run_rules()?;
+        if self.auto_rules()? {
+            self.run_rules()?;
+        }
         let entries = scan::scan(&self.root)?;
         let dismissed = self.dismissed()?;
         let ctx = Context { now: SystemTime::now(), installed: &self.installed };
@@ -120,7 +133,7 @@ impl Neat {
                 path: self.root.to_string_lossy().into_owned(),
                 files: entries.iter().filter(|e| !e.is_dir).count() as u64,
                 bytes: entries.iter().map(|e| e.size).sum(),
-                watching: false,
+                watching: self.watching,
                 last_scan: now_rfc3339(),
             },
             last_session: self.meta("previous_session")?,

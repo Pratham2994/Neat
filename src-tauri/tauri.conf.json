@@ -19,7 +19,9 @@
         "minHeight": 600,
         "center": true,
         "theme": "Dark",
-        "backgroundColor": "#121110"
+        "backgroundColor": "#121110",
+        "label": "main",
+        "visible": false
       }
     ],
     "security": {
@@ -28,7 +30,21 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis"],
-    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.ico"]
+    "targets": [
+      "nsis"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "shortDescription": "Keeps the Downloads folder organised",
+    "publisher": "Pratham",
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser"
+      }
+    }
   }
 }
