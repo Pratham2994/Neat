@@ -56,7 +56,10 @@ export const mockStacks: Stack[] = [
     evidence: [
       { text: "Downloaded from 3 shopping sites", detail: "amazon.in, flipkart.com, swiggy.com" },
       { text: "Names contain \u201cinvoice\u201d or \u201corder\u201d" },
-      { text: "No rule covers these yet", detail: "Tick \u201cAlways move files like these\u201d and Neat files them by itself next time" },
+      {
+        text: "No rule covers these yet",
+        detail: "Tick \u201cAlways move files like these\u201d and Neat files them by itself next time",
+      },
     ],
     files: [
       { id: "f6", name: "Invoice_402-8831127-4432.pdf", size: 0.2 * MB, modified: ago(2), source: "amazon.in" },

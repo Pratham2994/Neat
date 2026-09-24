@@ -521,14 +521,24 @@ fn recycle(path: &Path) -> std::result::Result<(), String> {
     trash::delete(path).map_err(|e| format!("Could not move it to the Recycle Bin: {e}"))
 }
 
+/// A path in a form that compares equal however its folder is spelled. The file itself may not exist.
+fn same_place(path: &Path) -> PathBuf {
+    match (path.parent().and_then(|p| fs::canonicalize(p).ok()), path.file_name()) {
+        (Some(dir), Some(name)) => dir.join(name),
+        _ => path.to_path_buf(),
+    }
+}
+
 fn restore(original: &Path) -> std::result::Result<(), String> {
     if original.exists() {
         return Err("A file with the same name is already back in Downloads".into());
     }
     let items = trash::os_limited::list().map_err(|e| format!("Could not read the Recycle Bin: {e}"))?;
+    // Compare resolved folders: the same folder can be spelled differently (short 8.3 names, case).
+    let wanted = same_place(original);
     let item = items
         .into_iter()
-        .filter(|i| i.original_path() == original)
+        .filter(|i| same_place(&i.original_path()) == wanted)
         .max_by_key(|i| i.time_deleted)
         .ok_or("No longer in the Recycle Bin")?;
     trash::os_limited::restore_all([item]).map_err(|e| format!("Could not restore it: {e}"))

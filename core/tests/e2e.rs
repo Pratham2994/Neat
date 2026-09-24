@@ -17,9 +17,24 @@ fn write(dir: &Path, name: &str, content: &[u8], age_secs: u64) {
 
 fn age(path: &Path, secs: u64) {
     let when = SystemTime::now() - Duration::from_secs(secs);
-    // Folders cannot be opened for writing; the owner may still set their times.
-    let file = if path.is_dir() { File::open(path) } else { File::options().write(true).open(path) };
-    file.unwrap().set_modified(when).unwrap();
+    open_for_times(path).unwrap().set_modified(when).unwrap();
+}
+
+// Setting a folder's times needs a handle to the folder itself.
+#[cfg(windows)]
+fn open_for_times(path: &Path) -> std::io::Result<File> {
+    use std::os::windows::fs::OpenOptionsExt;
+    const FILE_FLAG_BACKUP_SEMANTICS: u32 = 0x0200_0000;
+    File::options().write(true).custom_flags(FILE_FLAG_BACKUP_SEMANTICS).open(path)
+}
+
+#[cfg(not(windows))]
+fn open_for_times(path: &Path) -> std::io::Result<File> {
+    if path.is_dir() {
+        File::open(path)
+    } else {
+        File::options().write(true).open(path)
+    }
 }
 
 fn zip_with(path: &Path, files: &[(&str, &[u8])]) {
