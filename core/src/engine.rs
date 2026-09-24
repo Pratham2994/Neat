@@ -77,13 +77,14 @@ pub struct Neat {
     pub watching: bool,
     /// Groups from the last scan, by id. Decisions refer to these.
     stacks: HashMap<String, Stack>,
+    hashes: crate::hash::Cache,
 }
 
 impl Neat {
     pub fn open(root: impl Into<PathBuf>, db_path: impl AsRef<Path>) -> Result<Self> {
         let db = Connection::open(db_path)?;
         db.execute_batch(SCHEMA)?;
-        Ok(Self { root: root.into(), db, installed: installers::installed_apps(), watching: false, stacks: HashMap::new() })
+        Ok(Self { root: root.into(), db, installed: installers::installed_apps(), watching: false, stacks: HashMap::new(), hashes: Default::default() })
     }
 
     pub fn root(&self) -> &Path {
@@ -124,7 +125,7 @@ impl Neat {
         }
         let entries = scan::scan(&self.root)?;
         let kept = self.kept()?;
-        let ctx = Context { now: SystemTime::now(), installed: &self.installed, kept: &kept };
+        let ctx = Context { now: SystemTime::now(), installed: &self.installed, kept: &kept, hashes: &self.hashes };
         let stacks: Vec<Stack> = detect::detect(&entries, &ctx);
         self.stacks = stacks.iter().map(|s| (s.id.clone(), s.clone())).collect();
         Ok(Inbox {

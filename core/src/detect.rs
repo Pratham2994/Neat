@@ -27,6 +27,7 @@ pub struct Context<'a> {
     pub installed: &'a [InstalledApp],
     /// Files the user chose to keep. They are never suggested again.
     pub kept: &'a HashSet<PathBuf>,
+    pub hashes: &'a hash::Cache,
 }
 
 pub fn detect(entries: &[Entry], ctx: &Context) -> Vec<Stack> {
@@ -40,7 +41,7 @@ pub fn detect(entries: &[Entry], ctx: &Context) -> Vec<Stack> {
     }
     let mut stacks = Vec::new();
     stacks.extend(partial(entries, ctx, &mut used));
-    stacks.extend(duplicates(entries, &mut used));
+    stacks.extend(duplicates(entries, ctx.hashes, &mut used));
     stacks.extend(archives(entries, &mut used));
     stacks.extend(installed_installers(entries, ctx, &mut used));
     stacks.extend(versions(entries, &mut used));
@@ -133,7 +134,7 @@ fn partial(entries: &[Entry], ctx: &Context, used: &mut HashSet<usize>) -> Optio
     ))
 }
 
-fn duplicates(entries: &[Entry], used: &mut HashSet<usize>) -> Option<Stack> {
+fn duplicates(entries: &[Entry], hashes: &hash::Cache, used: &mut HashSet<usize>) -> Option<Stack> {
     let mut by_size: HashMap<u64, Vec<usize>> = HashMap::new();
     for i in free(entries, used) {
         let e = &entries[i];
@@ -143,8 +144,12 @@ fn duplicates(entries: &[Entry], used: &mut HashSet<usize>) -> Option<Stack> {
     }
     let mut sets: Vec<Vec<usize>> = Vec::new();
     for group in by_size.into_values().filter(|g| g.len() > 1) {
-        for candidates in split_by(&group, |i| hash::partial(&entries[i].path).ok()) {
-            sets.extend(split_by(&candidates, |i| hash::full(&entries[i].path).ok()));
+        let (partial, full) = (
+            |i: usize| hashes.partial(&entries[i].path, entries[i].size, entries[i].modified),
+            |i: usize| hashes.full(&entries[i].path, entries[i].size, entries[i].modified),
+        );
+        for candidates in split_by(&group, partial) {
+            sets.extend(split_by(&candidates, full));
         }
     }
     if sets.is_empty() {
