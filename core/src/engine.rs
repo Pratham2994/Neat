@@ -534,12 +534,27 @@ fn recycle(path: &Path) -> std::result::Result<(), String> {
     trash::delete(path).map_err(|e| format!("Could not move it to the Recycle Bin: {e}"))
 }
 
-/// A path in a form that compares equal however its folder is spelled. The file itself may not exist.
-fn same_place(path: &Path) -> PathBuf {
-    match (path.parent().and_then(|p| fs::canonicalize(p).ok()), path.file_name()) {
-        (Some(dir), Some(name)) => dir.join(name),
-        _ => path.to_path_buf(),
+/// A folder in a form that compares equal however it is spelled (short 8.3 names, case).
+fn resolved(dir: &Path) -> PathBuf {
+    fs::canonicalize(dir).unwrap_or_else(|_| dir.to_path_buf())
+}
+
+/// Whether a Recycle Bin item is the file that was at `original`.
+fn is_recycled_copy(item: &trash::TrashItem, original: &Path, folder: &Path) -> bool {
+    let Some(name) = original.file_name().map(|n| n.to_string_lossy().into_owned()) else { return false };
+    if resolved(&item.original_parent) != folder {
+        return false;
     }
+    let shown = item.name.to_string_lossy();
+    if shown.eq_ignore_ascii_case(&name) {
+        return true;
+    }
+    // Windows reports the name as Explorer shows it, which hides known extensions by default
+    // ("report.pdf" shows as "report"). The item's own id still ends with the real extension.
+    let (stem, ext) = crate::names::split_ext(&name);
+    !ext.is_empty()
+        && shown.eq_ignore_ascii_case(stem)
+        && item.id.to_string_lossy().to_ascii_lowercase().ends_with(&format!(".{ext}"))
 }
 
 fn restore(original: &Path) -> std::result::Result<(), String> {
@@ -547,11 +562,10 @@ fn restore(original: &Path) -> std::result::Result<(), String> {
         return Err("A file with the same name is already back in Downloads".into());
     }
     let items = trash::os_limited::list().map_err(|e| format!("Could not read the Recycle Bin: {e}"))?;
-    // Compare resolved folders: the same folder can be spelled differently (short 8.3 names, case).
-    let wanted = same_place(original);
+    let folder = resolved(original.parent().unwrap_or(original));
     let item = items
         .into_iter()
-        .filter(|i| same_place(&i.original_path()) == wanted)
+        .filter(|i| is_recycled_copy(i, original, &folder))
         .max_by_key(|i| i.time_deleted)
         .ok_or("No longer in the Recycle Bin")?;
     trash::os_limited::restore_all([item]).map_err(|e| format!("Could not restore it: {e}"))
