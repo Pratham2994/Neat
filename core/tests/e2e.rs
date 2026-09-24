@@ -108,7 +108,8 @@ fn downloads_round_trip() {
 
     let mut neat = Neat::open(d, tmp.path().join("neat.db")).unwrap();
     neat.installed = vec![InstalledApp { name: "Figma".into(), version: Some("124.3.2".into()), publisher: None }];
-    neat.begin_session().unwrap();
+    assert!(neat.scan().unwrap().last_session.is_none(), "first run has no previous visit");
+    neat.mark_seen().unwrap();
 
     // --- Scan: every detector finds its group, nothing in progress is touched.
     let inbox = neat.scan().unwrap();

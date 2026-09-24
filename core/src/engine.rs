@@ -102,12 +102,10 @@ impl Neat {
         Ok(())
     }
 
-    /// Call once when the app opens. The inbox then reports what changed since the previous session.
-    pub fn begin_session(&self) -> Result<()> {
-        if let Some(previous) = self.meta("last_session")? {
-            self.set_meta("previous_session", &previous)?;
-        }
-        self.set_meta("last_session", &now_rfc3339())
+    /// Call when the user stops looking: the window goes to the tray, or Neat quits. The inbox then
+    /// reports what Neat did since this moment ("While you were away"), however long Neat kept running.
+    pub fn mark_seen(&self) -> Result<()> {
+        self.set_meta("last_seen", &now_rfc3339())
     }
 
     /// Whether rules move matching files without asking. On by default.
@@ -138,7 +136,7 @@ impl Neat {
                 watching: self.watching,
                 last_scan: now_rfc3339(),
             },
-            last_session: self.meta("previous_session")?,
+            last_session: self.meta("last_seen")?,
         })
     }
 

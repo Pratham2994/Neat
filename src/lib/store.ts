@@ -50,7 +50,8 @@ type Action =
   | { type: "undone"; outcome: Outcome; message: string }
   | { type: "notice"; message: string; detail?: string; tone: Notice["tone"] }
   | { type: "dismissNotice"; id: number }
-  | { type: "dismissAway" };
+  | { type: "dismissAway" }
+  | { type: "visit" };
 
 let noticeId = 1;
 
@@ -267,6 +268,10 @@ function reducer(state: State, action: Action): State {
 
     case "dismissAway":
       return { ...state, awayDismissed: true };
+
+    // The window came back from the tray: a new visit gets its own "While you were away" and Done list.
+    case "visit":
+      return { ...state, awayDismissed: false, decided: {}, notice: null };
   }
 }
 
@@ -336,9 +341,18 @@ export function useNeat() {
       if (cancelled) stop();
       else unlisten = stop;
     })();
+    // Reopening the window from the tray starts a new visit: read Downloads and the log again.
+    const onVisible = () => {
+      if (document.visibilityState !== "visible") return;
+      dispatch({ type: "visit" });
+      void refreshInbox();
+      void refreshActivity();
+    };
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       cancelled = true;
       unlisten?.();
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [refreshInbox, refreshActivity, refreshRules]);
 

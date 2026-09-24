@@ -155,7 +155,7 @@ pub struct FolderStatus {
 pub struct Inbox {
     pub stacks: Vec<Stack>,
     pub folder: FolderStatus,
-    /// When the user last opened Neat on this machine, RFC 3339. None on first run.
+    /// When the user last closed Neat's window on this machine, RFC 3339. None on first run.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_session: Option<String>,
 }

@@ -115,6 +115,15 @@ fn set_start_at_login(app: AppHandle, on: bool) -> CommandResult<()> {
     result.map_err(|e| format!("Windows did not accept the change: {e}"))
 }
 
+/// The next "While you were away" counts from now.
+fn mark_seen(app: &AppHandle) {
+    if let Some(state) = app.try_state::<AppState>() {
+        if let Ok(neat) = state.neat.lock() {
+            let _ = neat.mark_seen();
+        }
+    }
+}
+
 fn show_window(app: &AppHandle) {
     if let Some(window) = app.get_webview_window("main") {
         let _ = window.unminimize();
@@ -145,7 +154,10 @@ fn build_tray(app: &AppHandle, neat: Arc<Mutex<Neat>>) -> tauri::Result<()> {
             let (app, neat) = (app.clone(), neat.clone());
             std::thread::spawn(move || watcher::rescan(&app, &neat));
         }
-        "quit" => app.exit(0),
+        "quit" => {
+            mark_seen(app);
+            app.exit(0);
+        }
         _ => {}
     })
     .on_tray_icon_event(|tray, event| {
@@ -170,9 +182,7 @@ pub fn run() {
             std::fs::create_dir_all(&data)?;
             // A test folder gets its own history, so trying Neat on a copy never touches the real log.
             let db = data.join(if test_folder { "neat-test.db" } else { "neat.db" });
-            let neat = Neat::open(&downloads, db)?;
-            neat.begin_session()?;
-            let neat = Arc::new(Mutex::new(neat));
+            let neat = Arc::new(Mutex::new(Neat::open(&downloads, db)?));
 
             let watcher = watcher::start(handle.clone(), &downloads, neat.clone()).ok();
             if let Ok(mut n) = neat.lock() {
@@ -191,6 +201,7 @@ pub fn run() {
             if let WindowEvent::CloseRequested { api, .. } = event {
                 api.prevent_close();
                 let _ = window.hide();
+                mark_seen(window.app_handle());
             }
         })
         .invoke_handler(tauri::generate_handler![
