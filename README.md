@@ -9,9 +9,23 @@ A local-first Windows utility that treats the Downloads folder as an inbox that 
 - **Users:** power users and non-technical users. The first real user is the author, so it must be useful to the author first.
 - **Where files go:** Neat organises inside the Downloads folder. It creates its folders there. No file is moved out of Downloads.
 - **Synced folders:** OneDrive and other synced folders are not supported.
-- **Automation:** when Neat is sure, it acts without asking. When it is not sure, the item goes to the review queue.
+- **Automation:** when Neat is sure, it acts without asking. When it is not sure, the item goes to the review queue. Automatic actions are moves inside Downloads only, based on fixed signals or confirmed rules. Recycle and delete always need review. A daily summary shows what Neat did, with undo.
+- **UI:** dark mode first. Sleek, modern, clean and fast. Grouped review, keyboard-first.
 - **Distribution:** undecided.
 - **Tech stack:** Tauri 2 (Rust core, TypeScript UI) and SQLite. Local models are optional and come later.
+
+## Development
+
+Requirements: Windows 10/11, [Rust](https://rustup.rs), Node.js 20+, and WebView2 (included in Windows 11).
+
+```sh
+npm install
+npm run tauri dev   # desktop app with hot reload
+npm run dev         # UI only, in the browser, with mock data
+npm run typecheck
+```
+
+The UI currently runs on mock data (`src/lib/mock.ts`). The Rust core (scanner, detectors, undo log) is next.
 
 ## Core job
 

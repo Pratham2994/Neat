@@ -1,0 +1,86 @@
+@import "@fontsource-variable/inter";
+@import "tailwindcss";
+
+/* Design tokens. Components use these through Tailwind utilities (bg-surface, text-fg-2, ...). */
+@theme {
+  --font-sans: "Inter Variable", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+
+  /* Surfaces, darkest to lightest. Each step is a small lift so layers read without heavy borders. */
+  --color-bg: #0b0c0f;
+  --color-sidebar: #0e0f13;
+  --color-surface: #131519;
+  --color-surface-2: #181b20;
+  --color-surface-3: #1e2127;
+  --color-surface-4: #262a31;
+
+  --color-line: rgb(255 255 255 / 0.06);
+  --color-line-strong: rgb(255 255 255 / 0.1);
+
+  --color-fg: #ececef;
+  --color-fg-2: #a2a5ae;
+  --color-fg-3: #6b6f79;
+
+  /* One accent. Mint reads as "clean" and stays distinct from the red used for recycle. */
+  --color-accent: #4fd8a4;
+  --color-accent-strong: #6be3b5;
+  --color-accent-ink: #04140d;
+
+  --color-danger: #f2766d;
+  --color-warn: #e4b454;
+  --color-info: #74aefc;
+  --color-violet: #b69af2;
+  --color-cyan: #5fd2da;
+  --color-orange: #ef9458;
+
+  --radius-card: 12px;
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.45;
+    font-feature-settings: "cv11", "ss01", "ss03";
+    -webkit-font-smoothing: antialiased;
+    /* Desktop app: no text selection on chrome, no rubber-band scrolling. */
+    user-select: none;
+    overscroll-behavior: none;
+    overflow: hidden;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  }
+
+  button {
+    cursor: default;
+  }
+
+  :focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--color-accent) 70%, transparent);
+    outline-offset: 2px;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(255 255 255 / 0.1) transparent;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility selectable {
+  user-select: text;
+}
