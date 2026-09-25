@@ -61,7 +61,7 @@ One-time setup, done by the repository owner:
    - `TAURI_UPDATER_PUBKEY`: the contents of `neat.key.pub`
 3. Keep `neat.key` and its password in a password manager. If they are lost, installed copies cannot update any more and need a manual reinstall.
 
-To publish a release, push a tag: `git tag v0.2.0 && git push origin v0.2.0`. The workflow builds, signs, and publishes `Neat_0.2.0_x64-setup.exe`, its `.sig`, and `latest.json`. Install the first release by hand; later releases arrive by themselves.
+To publish a release, open Actions → "Windows build" → Run workflow, type the version (for example `0.2.0`) and run it. Pushing a tag (`git tag v0.2.0 && git push origin v0.2.0`) does the same. The workflow builds, signs, and publishes `Neat_0.2.0_x64-setup.exe`, its `.sig`, and `latest.json`. Install the first release by hand; later releases arrive by themselves.
 
 ## Development
 

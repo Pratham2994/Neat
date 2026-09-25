@@ -1,17 +1,22 @@
 name: Windows build
 
 # Every push to main: check, test and build the installer.
-# A tag like v0.2.0: the same, then sign the update and publish a GitHub release that installed
-# copies of Neat pick up by themselves.
+# A release (a tag like v0.2.0, or "Run workflow" with a version): the same, then sign the update
+# and publish a GitHub release that installed copies of Neat pick up by themselves.
 
 on:
   push:
     branches: [main]
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      release:
+        description: "Version to release, like 0.2.0. Leave empty for a plain build."
+        required: false
+        default: ""
 
 concurrency:
-  group: windows-${{ github.ref }}
+  group: windows-${{ github.ref }}-${{ inputs.release || 'build' }}
   cancel-in-progress: true
 
 jobs:
@@ -43,17 +48,19 @@ jobs:
         run: cargo test -p neat-core
 
       - name: Prepare a signed release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.release != ''
         shell: pwsh
         env:
           PUBKEY: ${{ secrets.TAURI_UPDATER_PUBKEY }}
           KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAG: ${{ github.ref_name }}
+          # A pushed tag, or the version typed into "Run workflow".
+          TAG: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || format('v{0}', inputs.release) }}
         run: |
           if (-not $env:PUBKEY -or -not $env:KEY) {
             throw "Add the TAURI_UPDATER_PUBKEY and TAURI_SIGNING_PRIVATE_KEY repository secrets first. README.md, 'Updates', has the steps."
           }
-          if ($env:TAG -match '^v(\d+\.\d+\.\d+)$') { $version = $Matches[1] } else { throw "Release tags look like v1.2.3, not $env:TAG." }
+          if ($env:TAG -match '^vv?(\d+\.\d+\.\d+)$') { $version = $Matches[1] } else { throw "Release versions look like 1.2.3, not $env:TAG." }
+          "RELEASE_TAG=v$version" >> $env:GITHUB_ENV
           # Merged into tauri.conf.json for this build only: the tag's version, update artifacts, and the key
           # that installed copies use to check each update.
           @{
@@ -80,11 +87,10 @@ jobs:
           if-no-files-found: error
 
       - name: Publish the release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: env.RELEASE_TAG != ''
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.ref_name }}
         run: |
           $exe = Get-Item "target/release/bundle/nsis/*-setup.exe"
           if (@($exe).Count -ne 1) { throw "Expected one installer, found $(@($exe).Count)." }
@@ -97,8 +103,9 @@ jobs:
             platforms = @{
               "windows-x86_64" = @{
                 signature = (Get-Content $sig -Raw).Trim()
-                url       = "https://github.com/${{ github.repository }}/releases/download/$env:TAG/$($exe.Name)"
+                url       = "https://github.com/${{ github.repository }}/releases/download/$env:RELEASE_TAG/$($exe.Name)"
               }
             }
           } | ConvertTo-Json -Depth 5 | Set-Content latest.json -Encoding utf8NoBOM
-          gh release create $env:TAG $exe.FullName $sig latest.json --title "Neat $env:VERSION" --generate-notes
+          # Creates the tag on this commit when "Run workflow" started the release.
+          gh release create $env:RELEASE_TAG $exe.FullName $sig latest.json --target $env:GITHUB_SHA --title "Neat $env:VERSION" --generate-notes
