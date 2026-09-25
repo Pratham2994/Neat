@@ -1,6 +1,6 @@
 [package]
 name = "neat"
-version = "0.1.0"
+version = "0.2.0"
 description = "Keeps the Downloads folder organised"
 edition = "2021"
 
@@ -20,3 +20,5 @@ neat-core = { version = "0.1.0", path = "../core" }
 notify = "8.2.0"
 tauri-plugin-autostart = "2.5.1"
 tauri-plugin-single-instance = "2.4.5"
+tauri-plugin-dialog = "2"
+tauri-plugin-updater = "2"

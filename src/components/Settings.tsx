@@ -1,9 +1,28 @@
-import type { Settings } from "../lib/types";
-import { Switch } from "./ui";
+import type { Settings, UpdateInfo } from "../lib/types";
+import { Button, Switch } from "./ui";
 
 type Change = Partial<Pick<Settings, "autoRules" | "startAtLogin">>;
 
-export function SettingsView({ settings, onChange }: { settings: Settings | null; onChange: (change: Change) => void }) {
+interface Props {
+  settings: Settings | null;
+  update: UpdateInfo | null;
+  onChange: (change: Change) => void;
+  onPickFolder: () => void;
+  onResetFolder: () => void;
+  onCheckForUpdate: () => void;
+  onInstallUpdate: () => void;
+}
+
+export function SettingsView({
+  settings,
+  update,
+  onChange,
+  onPickFolder,
+  onResetFolder,
+  onCheckForUpdate,
+  onInstallUpdate,
+}: Props) {
+  const inTestFolder = settings?.testFolder && !settings.customFolder;
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
       <div className="mx-auto max-w-[1240px] px-6 pb-12 pt-6">
@@ -27,7 +46,7 @@ export function SettingsView({ settings, onChange }: { settings: Settings | null
             />
             <Row
               title="Start Neat when you sign in to Windows"
-              detail="Neat starts in the tray and keeps Downloads tidy between visits."
+              detail="Neat starts in the tray and keeps the folder tidy between visits."
               control={
                 <Switch
                   on={settings.startAtLogin}
@@ -37,15 +56,53 @@ export function SettingsView({ settings, onChange }: { settings: Settings | null
               }
             />
             <Row
-              title={settings.testFolder ? "Test folder" : "Folder"}
+              title={inTestFolder ? "Test folder" : "Folder"}
               detail={
-                settings.testFolder
+                inTestFolder
                   ? "Set by NEAT_DOWNLOADS. Neat keeps a separate history for it and never touches your real Downloads."
-                  : "Neat only works inside this folder. Everything it files stays in here."
+                  : settings.customFolder
+                    ? "Neat only works inside this folder. Each folder keeps its own history and rules."
+                    : "Neat only works inside this folder. Everything it files stays in here."
               }
-              control={<FolderPath path={settings.folder} />}
+              control={
+                <div className="flex min-w-0 items-center gap-3">
+                  <FolderPath path={settings.folder} />
+                  {settings.customFolder && (
+                    <Button variant="ghost" onClick={onResetFolder}>
+                      {settings.testFolder ? "Use test folder" : "Use Downloads"}
+                    </Button>
+                  )}
+                  <Button variant="outline" onClick={onPickFolder}>
+                    Change
+                  </Button>
+                </div>
+              }
             />
-            <Row title="Version" control={<span className="font-mono text-[12px] text-ink-2">{settings.version}</span>} />
+            <Row
+              title="Version"
+              detail={
+                !settings.updates
+                  ? "This build does not update itself."
+                  : update
+                    ? `Neat ${update.version} is downloaded. Restarting installs it and opens Neat again.`
+                    : "Neat checks for a new version every few hours and downloads it in the background."
+              }
+              control={
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-[12px] text-ink-2">{settings.version}</span>
+                  {settings.updates &&
+                    (update ? (
+                      <Button variant="outline" onClick={onInstallUpdate}>
+                        Restart to update
+                      </Button>
+                    ) : (
+                      <Button variant="ghost" onClick={onCheckForUpdate}>
+                        Check now
+                      </Button>
+                    ))}
+                </div>
+              }
+            />
           </div>
         ) : (
           <p className="mt-6 border-t border-rule-strong pt-4 text-ink-2">
@@ -72,7 +129,10 @@ function Row({ title, detail, control }: { title: string; detail?: string; contr
 // Long paths lose their start, not their end: the last folder name is what tells them apart.
 function FolderPath({ path }: { path: string }) {
   return (
-    <span className="selectable block max-w-[48ch] truncate font-mono text-[12px] text-ink-2 [direction:rtl]" title={path}>
+    <span
+      className="selectable block min-w-0 max-w-[48ch] truncate font-mono text-[12px] text-ink-2 [direction:rtl]"
+      title={path}
+    >
       <bdi>{path}</bdi>
     </span>
   );

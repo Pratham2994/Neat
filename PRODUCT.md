@@ -35,7 +35,7 @@ Most organisers sort one file at a time by extension or by an AI label. Neat und
 
 ## Capabilities and Constraints
 
-- Works only inside the Downloads folder. It creates its category folders inside Downloads. Files never leave Downloads.
+- Works inside one folder: Downloads, or a folder the user picks in Settings. It creates its category folders inside that folder. Files never leave it.
 - Automatic actions are moves only, triggered by deterministic signals or rules the user confirmed. Never automatic on model confidence alone.
 - Recycling always needs review and goes through the Windows Recycle Bin. Nothing is deleted permanently or silently.
 - Every action is logged and can be undone.

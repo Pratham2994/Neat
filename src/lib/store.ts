@@ -1,7 +1,18 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { backend, errorText } from "./api";
 import { plural } from "./format";
-import type { ActionKind, ActivityEntry, Confidence, FolderStatus, Inbox, Outcome, Rule, Settings, Stack } from "./types";
+import type {
+  ActionKind,
+  ActivityEntry,
+  Confidence,
+  FolderStatus,
+  Inbox,
+  Outcome,
+  Rule,
+  Settings,
+  Stack,
+  UpdateInfo,
+} from "./types";
 
 export type View = "inbox" | "activity" | "rules" | "settings";
 
@@ -32,6 +43,7 @@ export interface State {
   notice: Notice | null;
   awayDismissed: boolean;
   scanning: boolean;
+  update: UpdateInfo | null;
 }
 
 type Action =
@@ -51,7 +63,9 @@ type Action =
   | { type: "notice"; message: string; detail?: string; tone: Notice["tone"] }
   | { type: "dismissNotice"; id: number }
   | { type: "dismissAway" }
-  | { type: "visit" };
+  | { type: "visit" }
+  | { type: "folderChanged"; settings: Settings }
+  | { type: "update"; update: UpdateInfo | null };
 
 let noticeId = 1;
 
@@ -63,6 +77,19 @@ export function orderedStacks(stacks: Stack[]): Stack[] {
     const byAction = Number(a.action !== "move") - Number(b.action !== "move");
     return byAction || confidenceRank[a.confidence] - confidenceRank[b.confidence];
   });
+}
+
+// The last part of a path: "C:\\Users\\me\\Downloads" -> "Downloads".
+export function baseName(path: string): string {
+  return path.split(/[\\/]/).filter(Boolean).pop() ?? path;
+}
+
+// What to call the folder Neat looks after, in messages and the status strip.
+export function folderName(state: State): string {
+  const settings = state.settings;
+  if (settings?.testFolder && !settings.customFolder) return "Test folder";
+  const path = settings?.folder ?? state.folder?.path;
+  return path ? baseName(path) : "Downloads";
 }
 
 // Files the suggested action touches. In a duplicate stack the kept copy is excluded.
@@ -140,6 +167,7 @@ function initialState(): State {
     notice: null,
     awayDismissed: false,
     scanning: false,
+    update: null,
   };
 }
 
@@ -272,6 +300,13 @@ function reducer(state: State, action: Action): State {
     // The window came back from the tray: a new visit gets its own "While you were away" and Done list.
     case "visit":
       return { ...state, awayDismissed: false, decided: {}, notice: null };
+
+    // Another folder has its own groups, history and rules: start over, keeping the view and update.
+    case "folderChanged":
+      return { ...initialState(), view: state.view, settings: action.settings, update: state.update };
+
+    case "update":
+      return { ...state, update: action.update };
   }
 }
 
@@ -297,7 +332,7 @@ export function useNeat() {
     } catch (error) {
       dispatch({
         type: "notice",
-        ...failure("Couldn\u2019t read Downloads.", error, "Press Scan now to try again."),
+        ...failure(`Couldn\u2019t read ${folderName(stateRef.current)}.`, error, "Press Scan now to try again."),
         tone: "error",
       });
       return null;
@@ -333,15 +368,24 @@ export function useNeat() {
       } catch {
         // Settings show as unavailable until the next open.
       }
-      const stop = await backend.onInboxChanged((inbox) => {
-        dispatch({ type: "inbox", inbox });
-        // A background scan may have run rules, so the log may have new automatic moves.
-        void refreshActivity();
-      });
+      try {
+        dispatch({ type: "update", update: await backend.updateStatus() });
+      } catch {
+        // No update prompt this time; the next check finds it again.
+      }
+      const stops = await Promise.all([
+        backend.onInboxChanged((inbox) => {
+          dispatch({ type: "inbox", inbox });
+          // A background scan may have run rules, so the log may have new automatic moves.
+          void refreshActivity();
+        }),
+        backend.onUpdateReady((update) => dispatch({ type: "update", update })),
+      ]);
+      const stop = () => stops.forEach((s) => s());
       if (cancelled) stop();
       else unlisten = stop;
     })();
-    // Reopening the window from the tray starts a new visit: read Downloads and the log again.
+    // Reopening the window from the tray starts a new visit: read the folder and the log again.
     const onVisible = () => {
       if (document.visibilityState !== "visible") return;
       dispatch({ type: "visit" });
@@ -370,7 +414,7 @@ export function useNeat() {
         dispatch({
           type: "failed",
           ids: [id],
-          ...failure("Couldn\u2019t apply that.", error, "Neat read Downloads again; try once more."),
+          ...failure("Couldn\u2019t apply that.", error, "Neat read the folder again; try once more."),
         });
         void refreshInbox();
       }
@@ -393,7 +437,7 @@ export function useNeat() {
       dispatch({
         type: "failed",
         ids,
-        ...failure("Couldn\u2019t apply the suggestions.", error, "Neat read Downloads again; try once more."),
+        ...failure("Couldn\u2019t apply the suggestions.", error, "Neat read the folder again; try once more."),
       });
       void refreshInbox();
     }
@@ -438,7 +482,7 @@ export function useNeat() {
     const files = away.reduce((n, e) => n + e.count, 0);
     try {
       const outcome = await backend.undo(away.map((e) => e.id));
-      dispatch({ type: "undone", outcome, message: `Moved ${plural(files, "file")} back to Downloads` });
+      dispatch({ type: "undone", outcome, message: `Moved ${plural(files, "file")} back` });
       await refreshInbox();
     } catch (error) {
       dispatch({
@@ -485,6 +529,57 @@ export function useNeat() {
     }
   }, []);
 
+  // Opens the folder picker, or goes back to Downloads when `reset` is set.
+  const changeFolder = useCallback(
+    async (reset: boolean) => {
+      const before = folderName(stateRef.current);
+      try {
+        const path = reset ? null : await backend.pickFolder();
+        if (!reset && path === null) return;
+        const settings = await backend.setFolder(path);
+        dispatch({ type: "folderChanged", settings });
+        await refreshInbox();
+        await Promise.all([refreshActivity(), refreshRules()]);
+        dispatch({ type: "notice", message: `Neat now looks after ${baseName(settings.folder)}`, tone: "done" });
+      } catch (error) {
+        dispatch({
+          type: "notice",
+          ...failure("Couldn\u2019t use that folder.", error, `Neat still looks after ${before}.`),
+          tone: "error",
+        });
+      }
+    },
+    [refreshInbox, refreshActivity, refreshRules],
+  );
+
+  const checkForUpdate = useCallback(async () => {
+    try {
+      const update = await backend.checkForUpdate();
+      dispatch({ type: "update", update });
+      dispatch({
+        type: "notice",
+        message: update ? `Neat ${update.version} is ready` : "Neat is up to date",
+        detail: update ? "Press Restart to update." : undefined,
+        tone: "done",
+      });
+    } catch (error) {
+      dispatch({ type: "notice", ...failure("Couldn\u2019t check for updates.", error, "Try again later."), tone: "error" });
+    }
+  }, []);
+
+  // Closes Neat and opens the new version. Returns only if the installer could not start.
+  const installUpdate = useCallback(async () => {
+    try {
+      await backend.installUpdate();
+    } catch (error) {
+      dispatch({
+        type: "notice",
+        ...failure("Couldn\u2019t install the update.", error, "Neat keeps running this version."),
+        tone: "error",
+      });
+    }
+  }, []);
+
   const actions = useMemo(
     () => ({
       view: (view: View) => dispatch({ type: "view", view }),
@@ -500,8 +595,11 @@ export function useNeat() {
       undoAway,
       toggleRule,
       updateSettings,
+      changeFolder,
+      checkForUpdate,
+      installUpdate,
     }),
-    [refreshInbox, resolve, resolveSure, undo, undoAway, toggleRule, updateSettings],
+    [refreshInbox, resolve, resolveSure, undo, undoAway, toggleRule, updateSettings, changeFolder, checkForUpdate, installUpdate],
   );
 
   return { state, actions };

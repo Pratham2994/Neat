@@ -7,8 +7,8 @@ export function Rules({ rules, onToggle }: { rules: Rule[]; onToggle: (id: strin
       <div className="mx-auto max-w-[1240px] px-6 pb-12 pt-6">
         <h1 className="text-[18px] font-semibold tracking-[-0.01em]">Rules</h1>
         <p className="mt-0.5 max-w-[75ch] text-ink-2">
-          Rules run on new downloads without asking. They only move files between folders inside Downloads. Recycling always waits
-          for you. Add a rule by ticking “Always move files like these” on a group in the inbox.
+          Rules run on new downloads without asking. They only move files between folders inside the folder Neat looks after.
+          Recycling always waits for you. Add a rule by ticking “Always move files like these” on a group in the inbox.
         </p>
 
         <div role="table" aria-label="Rules" className="mt-6">

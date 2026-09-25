@@ -1,7 +1,7 @@
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { mockBackend } from "./mockBackend";
-import type { ActionKind, ActivityEntry, Inbox, Outcome, Rule, Settings } from "./types";
+import type { ActionKind, ActivityEntry, Inbox, Outcome, Rule, Settings, UpdateInfo } from "./types";
 
 // Everything the UI asks of Neat. In the desktop app these are Tauri commands backed by the Rust core
 // (src-tauri/src/lib.rs); in a plain browser the mock backend answers with sample data.
@@ -16,8 +16,17 @@ export interface Backend {
   settings(): Promise<Settings>;
   setAutoRules(on: boolean): Promise<void>;
   setStartAtLogin(on: boolean): Promise<void>;
-  // The watcher rescans after changes in Downloads and sends the new inbox.
+  // Opens the folder picker; null when cancelled.
+  pickFolder(): Promise<string | null>;
+  // Points Neat at `path`, or back at Downloads when null.
+  setFolder(path: string | null): Promise<Settings>;
+  updateStatus(): Promise<UpdateInfo | null>;
+  checkForUpdate(): Promise<UpdateInfo | null>;
+  // Closes Neat and opens the new version.
+  installUpdate(): Promise<void>;
+  // The watcher rescans after changes in the folder and sends the new inbox.
   onInboxChanged(handler: (inbox: Inbox) => void): Promise<() => void>;
+  onUpdateReady(handler: (update: UpdateInfo) => void): Promise<() => void>;
 }
 
 const tauriBackend: Backend = {
@@ -31,7 +40,13 @@ const tauriBackend: Backend = {
   settings: () => invoke("settings"),
   setAutoRules: (on) => invoke("set_auto_rules", { on }),
   setStartAtLogin: (on) => invoke("set_start_at_login", { on }),
+  pickFolder: () => invoke("pick_folder"),
+  setFolder: (path) => invoke("set_folder", { path }),
+  updateStatus: () => invoke("update_status"),
+  checkForUpdate: () => invoke("check_for_update"),
+  installUpdate: () => invoke("install_update"),
   onInboxChanged: (handler) => listen<Inbox>("inbox-changed", (event) => handler(event.payload)),
+  onUpdateReady: (handler) => listen<UpdateInfo>("update-ready", (event) => handler(event.payload)),
 };
 
 export const backend: Backend = isTauri() ? tauriBackend : mockBackend;

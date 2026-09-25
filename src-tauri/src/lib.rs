@@ -1,15 +1,18 @@
-//! Tauri shell: exposes the core engine to the UI, keeps Neat running in the tray, and watches Downloads.
+//! Tauri shell: exposes the core engine to the UI, keeps Neat running in the tray, watches the
+//! folder, and installs updates.
 
+mod updates;
 mod watcher;
 
-use neat_core::{ActionKind, ActivityEntry, Inbox, Neat, Outcome, RuleView};
-use serde::Serialize;
-use std::path::PathBuf;
+use neat_core::{folder, ActionKind, ActivityEntry, Inbox, Neat, Outcome, RuleView};
+use serde::{Deserialize, Serialize};
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use tauri::menu::{Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Manager, State, WindowEvent};
 use tauri_plugin_autostart::{MacosLauncher, ManagerExt};
+use tauri_plugin_dialog::DialogExt;
 
 /// Started by Windows at sign-in: stay in the tray instead of opening the window.
 const HIDDEN_ARG: &str = "--hidden";
@@ -18,9 +21,43 @@ const TEST_FOLDER_ENV: &str = "NEAT_DOWNLOADS";
 
 struct AppState {
     neat: Arc<Mutex<Neat>>,
+    /// Downloads, or the NEAT_DOWNLOADS test folder. "Use Downloads" goes back to it.
+    home: PathBuf,
     test_folder: bool,
-    // Dropping the watcher stops it, so it lives as long as the app.
-    _watcher: Option<notify::RecommendedWatcher>,
+    data: PathBuf,
+    // Dropping the watcher stops it. Replaced when the user picks another folder.
+    watcher: Mutex<Option<notify::RecommendedWatcher>>,
+}
+
+/// Choices that live outside any one folder's history.
+#[derive(Default, Serialize, Deserialize)]
+struct Config {
+    /// The folder the user picked instead of Downloads.
+    folder: Option<PathBuf>,
+}
+
+const CONFIG_FILE: &str = "config.json";
+
+impl Config {
+    fn load(data: &Path) -> Self {
+        std::fs::read(data.join(CONFIG_FILE)).ok().and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default()
+    }
+
+    fn save(&self, data: &Path) -> std::io::Result<()> {
+        std::fs::write(data.join(CONFIG_FILE), serde_json::to_vec_pretty(self)?)
+    }
+}
+
+/// Each folder keeps its own history and rules, so switching back brings them back.
+fn db_path(data: &Path, home: &Path, root: &Path, test_folder: bool) -> PathBuf {
+    let name = if folder::same(root, home) {
+        // A test folder gets its own history, so trying Neat on a copy never touches the real log.
+        (if test_folder { "neat-test.db" } else { "neat.db" }).to_string()
+    } else {
+        let key = root.to_string_lossy().to_lowercase();
+        format!("neat-{}.db", neat_core::hash::short_id(&[key.trim_end_matches(['\\', '/'])]))
+    };
+    data.join(name)
 }
 
 type CommandResult<T> = Result<T, String>;
@@ -42,7 +79,7 @@ fn scan(app: AppHandle, state: State<'_, AppState>) -> CommandResult<Inbox> {
 /// The tray tooltip says whether a visit is worth it: "Neat: 5 groups to review".
 pub(crate) fn update_tray(app: &AppHandle, inbox: &Inbox) {
     let tooltip = match inbox.stacks.len() {
-        0 => "Neat: Downloads is tidy".to_string(),
+        0 => "Neat: nothing to review".to_string(),
         1 => "Neat: 1 group to review".to_string(),
         n => format!("Neat: {n} groups to review"),
     };
@@ -87,20 +124,91 @@ struct Settings {
     auto_rules: bool,
     start_at_login: bool,
     folder: String,
+    home_folder: String,
+    custom_folder: bool,
     test_folder: bool,
     version: String,
+    updates: bool,
 }
 
 #[tauri::command(async)]
 fn settings(app: AppHandle, state: State<'_, AppState>) -> CommandResult<Settings> {
-    let (auto_rules, folder) = with(&state, |neat| Ok((neat.auto_rules()?, neat.root().to_string_lossy().into_owned())))?;
+    let (auto_rules, root) = with(&state, |neat| Ok((neat.auto_rules()?, neat.root().to_path_buf())))?;
     Ok(Settings {
         auto_rules,
         start_at_login: app.autolaunch().is_enabled().unwrap_or(false),
-        folder,
+        folder: root.to_string_lossy().into_owned(),
+        home_folder: state.home.to_string_lossy().into_owned(),
+        custom_folder: !folder::same(&root, &state.home),
         test_folder: state.test_folder,
         version: app.package_info().version.to_string(),
+        updates: updates::enabled(&app),
     })
+}
+
+/// Opens the Windows folder picker. None when the user cancels.
+#[tauri::command(async)]
+fn pick_folder(app: AppHandle, state: State<'_, AppState>) -> Option<String> {
+    let mut dialog = app.dialog().file().set_title("Choose the folder Neat looks after");
+    if let Some(current) = state.neat.lock().ok().map(|n| n.root().to_path_buf()) {
+        dialog = dialog.set_directory(current);
+    }
+    if let Some(window) = app.get_webview_window("main") {
+        dialog = dialog.set_parent(&window);
+    }
+    let picked = dialog.blocking_pick_folder()?.into_path().ok()?;
+    Some(picked.to_string_lossy().into_owned())
+}
+
+/// Points Neat at another folder, or back at Downloads when `path` is None.
+#[tauri::command(async)]
+fn set_folder(app: AppHandle, state: State<'_, AppState>, path: Option<String>) -> CommandResult<Settings> {
+    let root = match path.map(PathBuf::from) {
+        Some(p) if !folder::same(&p, &state.home) => {
+            if let Some(why) = folder::unsuitable(&p) {
+                return Err(format!("{why}."));
+            }
+            p
+        }
+        _ => state.home.clone(),
+    };
+    // Open the new folder's history first: if that fails, nothing has changed.
+    let mut next = Neat::open(&root, db_path(&state.data, &state.home, &root, state.test_folder)).map_err(|e| e.to_string())?;
+    // The test folder is for one session; only a real choice is remembered.
+    if !state.test_folder {
+        let chosen = (!folder::same(&root, &state.home)).then(|| root.clone());
+        Config { folder: chosen }.save(&state.data).map_err(|e| format!("Neat could not save the choice: {e}"))?;
+    }
+    {
+        let mut neat = state.neat.lock().map_err(|_| "Neat hit an internal error. Restart it.".to_string())?;
+        let _ = neat.mark_seen();
+        let mut watcher = state.watcher.lock().map_err(|_| "Neat hit an internal error. Restart it.".to_string())?;
+        // Stop watching the old folder before watching the new one.
+        *watcher = None;
+        *watcher = watcher::start(app.clone(), &root, state.neat.clone()).ok();
+        next.watching = watcher.is_some();
+        *neat = next;
+    }
+    settings(app, state)
+}
+
+#[tauri::command(async)]
+fn update_status(state: State<'_, updates::Pending>) -> Option<updates::UpdateInfo> {
+    state.info()
+}
+
+#[tauri::command]
+async fn check_for_update(app: AppHandle) -> CommandResult<Option<updates::UpdateInfo>> {
+    if !updates::enabled(&app) {
+        return Err("This build does not update itself. Install a release from GitHub".into());
+    }
+    updates::fetch(&app).await.map_err(|e| format!("Neat could not get it from GitHub: {e}"))
+}
+
+#[tauri::command(async)]
+fn install_update(app: AppHandle) -> CommandResult<()> {
+    mark_seen(&app);
+    updates::install(&app)
 }
 
 #[tauri::command(async)]
@@ -132,7 +240,8 @@ fn show_window(app: &AppHandle) {
     }
 }
 
-fn downloads_folder(app: &AppHandle) -> tauri::Result<(PathBuf, bool)> {
+/// The folder "Use Downloads" returns to: Downloads, or the NEAT_DOWNLOADS test folder.
+fn home_folder(app: &AppHandle) -> tauri::Result<(PathBuf, bool)> {
     if let Some(folder) = std::env::var_os(TEST_FOLDER_ENV).map(PathBuf::from).filter(|p| p.is_dir()) {
         return Ok((folder, true));
     }
@@ -141,7 +250,7 @@ fn downloads_folder(app: &AppHandle) -> tauri::Result<(PathBuf, bool)> {
 
 fn build_tray(app: &AppHandle, neat: Arc<Mutex<Neat>>) -> tauri::Result<()> {
     let open = MenuItem::with_id(app, "open", "Open Neat", true, None::<&str>)?;
-    let scan = MenuItem::with_id(app, "scan", "Scan Downloads now", true, None::<&str>)?;
+    let scan = MenuItem::with_id(app, "scan", "Scan now", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "Quit Neat", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&open, &scan, &PredefinedMenuItem::separator(app)?, &quit])?;
     let mut tray = TrayIconBuilder::with_id("neat").tooltip("Neat").menu(&menu).show_menu_on_left_click(false);
@@ -175,21 +284,29 @@ pub fn run() {
         // Must be first: a second launch shows the running Neat instead of starting another.
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| show_window(app)))
         .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec![HIDDEN_ARG])))
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             let handle = app.handle().clone();
-            let (downloads, test_folder) = downloads_folder(&handle)?;
+            let (home, test_folder) = home_folder(&handle)?;
             let data = app.path().app_data_dir()?;
             std::fs::create_dir_all(&data)?;
-            // A test folder gets its own history, so trying Neat on a copy never touches the real log.
-            let db = data.join(if test_folder { "neat-test.db" } else { "neat.db" });
-            let neat = Arc::new(Mutex::new(Neat::open(&downloads, db)?));
+            // A picked folder that has gone (a removed drive) falls back to Downloads.
+            let picked = if test_folder { None } else { Config::load(&data).folder };
+            let root = picked.filter(|f| folder::unsuitable(f).is_none()).unwrap_or_else(|| home.clone());
+            let neat = Arc::new(Mutex::new(Neat::open(&root, db_path(&data, &home, &root, test_folder))?));
 
-            let watcher = watcher::start(handle.clone(), &downloads, neat.clone()).ok();
+            let watcher = watcher::start(handle.clone(), &root, neat.clone()).ok();
             if let Ok(mut n) = neat.lock() {
                 n.watching = watcher.is_some();
             }
             build_tray(&handle, neat.clone())?;
-            app.manage(AppState { neat, test_folder, _watcher: watcher });
+            app.manage(AppState { neat, home, test_folder, data, watcher: Mutex::new(watcher) });
+
+            app.manage(updates::Pending::default());
+            // A problem with updates must never stop Neat from running.
+            if let Err(e) = updates::start(&handle) {
+                eprintln!("Updates are off: {e}");
+            }
 
             if !std::env::args().any(|a| a == HIDDEN_ARG) {
                 show_window(&handle);
@@ -214,7 +331,12 @@ pub fn run() {
             set_rule_enabled,
             settings,
             set_auto_rules,
-            set_start_at_login
+            set_start_at_login,
+            pick_folder,
+            set_folder,
+            update_status,
+            check_for_update,
+            install_update
         ])
         .run(tauri::generate_context!())
         .expect("error while running Neat");

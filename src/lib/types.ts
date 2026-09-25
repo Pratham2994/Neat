@@ -86,7 +86,15 @@ export interface Outcome {
 export interface Settings {
   autoRules: boolean;
   startAtLogin: boolean;
-  folder: string;
+  folder: string; // the folder Neat looks after now
+  homeFolder: string; // Downloads, or the NEAT_DOWNLOADS test folder
+  customFolder: boolean; // the user picked a folder other than homeFolder
   testFolder: boolean;
+  version: string;
+  updates: boolean; // this build can update itself (release builds only)
+}
+
+// A newer version, downloaded and waiting for "Restart to update".
+export interface UpdateInfo {
   version: string;
 }

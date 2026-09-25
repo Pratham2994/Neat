@@ -7,7 +7,7 @@ import { Rules } from "./components/Rules";
 import { SettingsView } from "./components/Settings";
 import { Button, cx, Key } from "./components/ui";
 import { formatBytes, formatCount, relativeTime } from "./lib/format";
-import { awayMoves, doneThisSession, sureStacks, useNeat, type Notice, type State, type View } from "./lib/store";
+import { awayMoves, doneThisSession, folderName, sureStacks, useNeat, type Notice, type State, type View } from "./lib/store";
 import type { ActionKind } from "./lib/types";
 
 const views: { view: View; label: string }[] = [
@@ -116,8 +116,10 @@ export default function App() {
           view={state.view}
           inboxCount={state.stacks.length}
           scanning={state.scanning}
+          updateReady={state.update !== null}
           onView={actions.view}
           onScan={() => void actions.scan()}
+          onInstallUpdate={() => void actions.installUpdate()}
         />
 
         <main className="flex min-h-0 flex-1 flex-col">
@@ -128,6 +130,7 @@ export default function App() {
               selectedId={state.selectedId}
               expandedId={state.expandedId}
               lastSession={state.lastSession}
+              place={folderName(state)}
               away={state.awayDismissed ? [] : awayMoves(state)}
               sure={sure}
               done={doneThisSession(state)}
@@ -147,7 +150,15 @@ export default function App() {
           {state.view === "activity" && <Activity entries={state.activity} onUndo={(id) => void actions.undo([id])} />}
           {state.view === "rules" && <Rules rules={state.rules} onToggle={(id) => void actions.toggleRule(id)} />}
           {state.view === "settings" && (
-            <SettingsView settings={state.settings} onChange={(change) => void actions.updateSettings(change)} />
+            <SettingsView
+              settings={state.settings}
+              update={state.update}
+              onChange={(change) => void actions.updateSettings(change)}
+              onPickFolder={() => void actions.changeFolder(false)}
+              onResetFolder={() => void actions.changeFolder(true)}
+              onCheckForUpdate={() => void actions.checkForUpdate()}
+              onInstallUpdate={() => void actions.installUpdate()}
+            />
           )}
         </main>
 
@@ -167,14 +178,18 @@ function TopBar({
   view,
   inboxCount,
   scanning,
+  updateReady,
   onView,
   onScan,
+  onInstallUpdate,
 }: {
   view: View;
   inboxCount: number;
   scanning: boolean;
+  updateReady: boolean;
   onView: (view: View) => void;
   onScan: () => void;
+  onInstallUpdate: () => void;
 }) {
   return (
     <header className="h-12 shrink-0 border-b border-rule bg-chrome">
@@ -207,7 +222,12 @@ function TopBar({
             );
           })}
         </nav>
-        <div className="ml-auto self-center">
+        <div className="ml-auto flex items-center gap-2 self-center">
+          {updateReady && (
+            <Button variant="outline" onClick={onInstallUpdate}>
+              Restart to update
+            </Button>
+          )}
           <Button variant="ghost" onClick={onScan} disabled={scanning}>
             Scan now
           </Button>
@@ -268,7 +288,7 @@ function StatusBar({
                 transition={{ duration: 0.15 }}
                 className="flex items-center gap-2 truncate"
               >
-                <span className="text-ink-2">{state.settings?.testFolder ? "Test folder" : "Downloads"}</span>
+                <span className="text-ink-2">{folderName(state)}</span>
                 <span>
                   {formatCount(folder.files)} files, {formatBytes(folder.bytes)}
                 </span>
@@ -286,7 +306,7 @@ function StatusBar({
               </motion.div>
             ) : (
               <span key="loading" className="text-ink-2">
-                Downloads
+                {folderName(state)}
               </span>
             )}
           </AnimatePresence>

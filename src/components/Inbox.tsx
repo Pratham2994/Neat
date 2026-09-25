@@ -22,6 +22,7 @@ interface Props {
   selectedId: string | null;
   expandedId: string | null;
   lastSession: string | null;
+  place: string; // what to call the folder: "Downloads", or the name of the one the user picked
   away: ActivityEntry[];
   sure: Stack[];
   done: { entry: ActivityEntry; stack?: Stack }[];
@@ -45,7 +46,7 @@ export function Inbox(props: Props) {
   const sureIds = new Set(sure.map((s) => s.id));
   const files = stacks.reduce((n, s) => n + s.files.length, 0);
   const bytes = stacks.reduce((n, s) => n + s.files.reduce((m, f) => m + f.size, 0), 0);
-  const since = props.lastSession ? sinceLabel(props.lastSession) : "First look at Downloads";
+  const since = props.lastSession ? sinceLabel(props.lastSession) : `First look at ${props.place}`;
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
@@ -54,7 +55,7 @@ export function Inbox(props: Props) {
           <h1 className="text-[18px] font-semibold tracking-[-0.01em]">Inbox</h1>
           <p className="mt-0.5 text-ink-2">
             {props.loading
-              ? "Reading Downloads"
+              ? `Reading ${props.place}`
               : stacks.length > 0
                 ? `${since}: ${plural(stacks.length, "group")}, ${plural(files, "file")}, ${formatBytes(bytes)}`
                 : `${since}: nothing left to decide`}
@@ -283,7 +284,7 @@ function Row({ stack, selected, expanded, inBatch, previewing, always, onAlways,
             variant={selected ? "primary" : "soft"}
             onClick={act(stack.action)}
             className="justify-between"
-            title={stack.action === "move" ? `Move to Downloads/${stack.destination}` : undefined}
+            title={stack.action === "move" ? `Move to ${stack.destination}` : undefined}
           >
             <span className="truncate">{suggestionLabel(stack)}</span>
             {selected && <Key className={WIDE_ONLY}>Enter</Key>}

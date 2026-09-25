@@ -1,15 +1,15 @@
 //! The engine: scans, applies decisions, records every file operation, and undoes them.
 //!
 //! Every move and recycle is written to the `operations` table right after it happens, so undo
-//! works even if the app closes mid-batch. Moves stay inside Downloads. Recycling goes through the
+//! works even if the app closes mid-batch. Moves stay inside Neat's folder. Recycling goes through the
 //! Recycle Bin, never a permanent delete.
 
 use crate::detect::{self, Context};
 use crate::installers::{self, InstalledApp};
-use crate::model::{ActionKind, ActivityEntry, FolderStatus, Inbox, Outcome, Skipped, Stack};
+use crate::model::{ActionKind, ActivityEntry, FileItem, FolderStatus, Inbox, Outcome, Skipped, Stack};
 use crate::rules::{self, Condition};
 use crate::scan::{self, Entry, MARKER};
-use crate::util::{now_rfc3339, plural};
+use crate::util::{now_rfc3339, plural, rfc3339};
 use crate::{Error, Result};
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::Serialize;
@@ -205,6 +205,10 @@ impl Neat {
             }
             ActionKind::Move | ActionKind::Recycle => {
                 for file in stack.affected() {
+                    if action == ActionKind::Recycle && !unchanged(file) {
+                        skipped.push(Skipped { path: file.id.clone(), reason: "Changed since Neat looked".into() });
+                        continue;
+                    }
                     let from = PathBuf::from(&file.id);
                     let result = match &destination {
                         Some(dest) => move_into(&self.root, &from, dest).map(Some),
@@ -251,9 +255,11 @@ impl Neat {
             return Ok(outcome);
         }
         let now = SystemTime::now();
+        // A file the user chose to keep stays where it is, even if a later rule covers it.
+        let kept = self.kept()?;
         let entries: Vec<Entry> = scan::scan(&self.root)?
             .into_iter()
-            .filter(|e| !e.is_dir && !crate::names::is_partial(&e.ext) && e.age_secs(now) >= 120)
+            .filter(|e| !e.is_dir && !crate::names::is_partial(&e.ext) && e.age_secs(now) >= 120 && !kept.contains(&e.path))
             .collect();
         let mut taken = HashSet::new();
         for rule in rules.iter().filter(|r| r.enabled) {
@@ -432,13 +438,13 @@ fn plain_reason(err: &io::Error) -> String {
     match (err.kind(), err.raw_os_error()) {
         // ERROR_SHARING_VIOLATION and ERROR_LOCK_VIOLATION on Windows.
         (_, Some(32 | 33)) => "In use by another app".into(),
-        (io::ErrorKind::NotFound, _) => "No longer in Downloads".into(),
+        (io::ErrorKind::NotFound, _) => "No longer there".into(),
         (io::ErrorKind::PermissionDenied, _) => "Windows did not allow the change".into(),
         _ => err.to_string(),
     }
 }
 
-/// Rejects destinations that could leave Downloads or that Windows cannot name.
+/// Rejects destinations that could leave Neat's folder or that Windows cannot name.
 fn safe_destination(root: &Path, dest: &str) -> std::result::Result<PathBuf, String> {
     let mut path = root.to_path_buf();
     for part in dest.split('/') {
@@ -457,7 +463,7 @@ fn safe_destination(root: &Path, dest: &str) -> std::result::Result<PathBuf, Str
 /// Creates each missing folder on the way and marks it as Neat's.
 fn ensure_folder(root: &Path, dir: &Path) -> io::Result<()> {
     let mut current = root.to_path_buf();
-    for part in dir.strip_prefix(root).map_err(|_| io::Error::other("outside Downloads"))?.components() {
+    for part in dir.strip_prefix(root).map_err(|_| io::Error::other("outside Neat's folder"))?.components() {
         current.push(part);
         if !current.exists() {
             fs::create_dir(&current)?;
@@ -497,7 +503,7 @@ fn free_name(dir: &Path, name: &str) -> PathBuf {
 fn move_into(root: &Path, from: &Path, dest: &str) -> std::result::Result<PathBuf, String> {
     let dir = safe_destination(root, dest)?;
     if !from.starts_with(root) {
-        return Err("Not in Downloads".into());
+        return Err("Not in Neat's folder".into());
     }
     ensure_folder(root, &dir).map_err(|e| plain_reason(&e))?;
     let name = from.file_name().ok_or("No file name")?.to_string_lossy().into_owned();
@@ -512,7 +518,7 @@ fn move_back(root: &Path, to: &Path, from: &Path) -> std::result::Result<(), Str
         return Err("Moved or deleted since, so it cannot be put back".into());
     }
     if from.exists() {
-        return Err("A file with the same name is already back in Downloads".into());
+        return Err("A file with the same name is already back".into());
     }
     fs::rename(to, from).map_err(|e| plain_reason(&e))?;
     remove_empty_neat_folders(root, to.parent());
@@ -530,6 +536,16 @@ fn remove_empty_neat_folders(root: &Path, mut dir: Option<&Path>) {
             break;
         }
         dir = d.parent();
+    }
+}
+
+/// Whether a file is still the one the group was built from. Recycling a file that changed since
+/// the scan (edited, or replaced by a new download) would throw away something the user never saw.
+fn unchanged(file: &FileItem) -> bool {
+    match fs::metadata(&file.id) {
+        Ok(m) if m.is_file() => m.len() == file.size && m.modified().is_ok_and(|t| rfc3339(t) == file.modified),
+        // Folders, and files already gone: recycling reports those itself.
+        _ => true,
     }
 }
 
@@ -562,7 +578,7 @@ fn is_recycled_copy(item: &trash::TrashItem, original: &Path, folder: &Path) -> 
 
 fn restore(original: &Path) -> std::result::Result<(), String> {
     if original.exists() {
-        return Err("A file with the same name is already back in Downloads".into());
+        return Err("A file with the same name is already back".into());
     }
     let items = trash::os_limited::list().map_err(|e| format!("Could not read the Recycle Bin: {e}"))?;
     let folder = resolved(original.parent().unwrap_or(original));

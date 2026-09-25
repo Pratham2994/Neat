@@ -5,6 +5,7 @@
 
 pub mod detect;
 pub mod engine;
+pub mod folder;
 pub mod hash;
 pub mod installers;
 pub mod model;

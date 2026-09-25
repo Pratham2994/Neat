@@ -154,6 +154,13 @@ fn downloads_round_trip() {
     let move_id = out.entries.iter().find(|e| e.action == "move").unwrap().id.clone();
     let rule_id = out.entries.iter().find(|e| e.action == "rule").unwrap().id.clone();
 
+    // --- A file that changed after the scan is not recycled.
+    let partial_path = d.join("dataset-full.tar.gz.crdownload");
+    fs::write(&partial_path, b"half, and then some more").unwrap();
+    let out = neat.apply(&partial.id, ActionKind::Recycle, false).unwrap();
+    assert_eq!(out.skipped.len(), 1, "a changed file is left alone");
+    assert!(partial_path.exists());
+
     // --- Recycle the duplicate copies, then undo it.
     let dupes_id = dupes.id.clone();
     let out = neat.apply(&dupes_id, ActionKind::Recycle, false).unwrap();
@@ -176,6 +183,18 @@ fn downloads_round_trip() {
     let inbox = neat.scan().unwrap();
     let images = find(&inbox.stacks, StackKind::Category, "Images");
     assert_eq!(images.files.iter().map(|f| f.name.as_str()).collect::<Vec<_>>(), vec!["wallpaper-3.webp"]);
+    // A rule made later leaves kept files where they are.
+    write(d, "wallpaper-4.jpg", b"jpg four", DAY);
+    let inbox = neat.scan().unwrap();
+    let images_id = find(&inbox.stacks, StackKind::Category, "Images").id.clone();
+    let out = neat.apply(&images_id, ActionKind::Move, true).unwrap();
+    assert!(out.skipped.is_empty(), "{:?}", out.skipped);
+    assert!(d.join("Images/wallpaper-4.jpg").exists());
+    neat.scan().unwrap();
+    assert!(d.join("wallpaper-1.jpg").exists(), "a rule never moves a kept file");
+    let ids: Vec<String> = out.entries.iter().map(|e| e.id.clone()).collect();
+    assert!(neat.undo(&ids).unwrap().skipped.is_empty());
+    assert!(neat.rules().unwrap().len() == 1 && !d.join("Images").exists());
 
     // --- The rule files a new invoice by itself on the next scan.
     write(d, "Invoice_555-0000000-1111.pdf", b"invoice three", 10 * 60);

@@ -229,6 +229,43 @@ try {
     activity.includes("Moved") && activity.includes("Recycled") && activity.includes("Undone"),
   );
   check("the user's folder is untouched", has("My Stuff/notes.txt"));
+
+  // --- Another folder. The native picker cannot be driven, so the test calls the command the
+  // picker feeds, then reloads the window the way a new visit would.
+  const other = join(work, "Other");
+  for (const name of ["photo-1.jpg", "photo-2.png"]) {
+    mkdirSync(other, { recursive: true });
+    writeFileSync(join(other, name), name);
+    age(join(other, name), 3);
+  }
+  const setFolder = (path) =>
+    wd("POST", `/session/${sid}/execute/async`, {
+      script:
+        "const done = arguments[arguments.length - 1]; window.__TAURI_INTERNALS__.invoke('set_folder', { path: arguments[0] }).then(() => done('ok'), (e) => done(String(e)));",
+      args: [path],
+    });
+  const reload = () => run("location.reload()");
+
+  check("a whole drive is refused", (await setFolder("/")).includes("not a whole drive"));
+  check("the picked folder is accepted", (await setFolder(other)) === "ok");
+  await reload();
+  await until("the picked folder's groups", async () => (await text()).includes("Images"));
+  const otherInbox = await text();
+  check("the inbox shows only the picked folder", !otherInbox.includes("Receipts and invoices") && otherInbox.includes("Other"));
+  check("the picked folder's Move works", await click("Move to Images"));
+  await until("the images to move", async () => existsSync(join(other, "Images/photo-1.jpg")));
+  check("files stay inside the picked folder", existsSync(join(other, "Images/.neat")) && !has("Images"));
+  check("a folder Neat made is refused", (await setFolder(join(other, "Images"))).includes("Neat made that folder"));
+  await press("2", { ctrlKey: true });
+  await until("the picked folder's log", async () => (await text()).includes("Everything Neat did"));
+  check("the picked folder starts its own history", !(await text()).includes("Undone"));
+
+  check("going back to the first folder works", (await setFolder(null)) === "ok");
+  await reload();
+  await until("the first folder's groups", async () => (await text()).includes("Receipts and invoices"));
+  await press("2", { ctrlKey: true });
+  await until("the first folder's log", async () => (await text()).includes("Everything Neat did"));
+  check("switching back brings its history back", (await text()).includes("Undone"));
 } catch (error) {
   console.log(`ERROR ${error.message}`);
   results.push(false);

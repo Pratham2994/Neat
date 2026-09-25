@@ -15,8 +15,11 @@ const settings: Settings = {
   autoRules: true,
   startAtLogin: false,
   folder: mockFolder.path,
+  homeFolder: mockFolder.path,
+  customFolder: false,
   testFolder: false,
   version: "0.1.0 (browser preview)",
+  updates: true,
 };
 // What undo needs: the stack an entry removed, or the rule it created.
 const undoable = new Map<string, { stack?: Stack; ruleId?: string }>();
@@ -127,6 +130,20 @@ export const mockBackend: Backend = {
     return wait(undefined);
   },
 
-  // The browser has no watcher.
+  // The browser has no folder picker; pretend the user chose this one.
+  pickFolder: () => wait("C:\\Users\\Pratham\\Desktop\\Inbox"),
+
+  setFolder(path) {
+    settings.folder = path ?? settings.homeFolder;
+    settings.customFolder = path !== null && path !== settings.homeFolder;
+    return wait(settings);
+  },
+
+  updateStatus: () => wait(null),
+  checkForUpdate: () => wait(null),
+  installUpdate: () => Promise.reject("The browser preview cannot update itself."),
+
+  // The browser has no watcher and no updater.
   onInboxChanged: () => Promise.resolve(() => {}),
+  onUpdateReady: () => Promise.resolve(() => {}),
 };
