@@ -30,12 +30,12 @@ A local-first Windows utility that treats the Downloads folder as an inbox that 
 3. **First run on a copy, not your real Downloads.** Quit any running Neat first (tray icon → Quit Neat); a second launch only brings the running one forward. Then, in PowerShell:
 
    ```powershell
-   robocopy "$env:USERPROFILE\Downloads" "$env:USERPROFILE\NeatTest" /E /COPY:DAT /DCOPY:T
+   robocopy "$env:USERPROFILE\Downloads" "$env:USERPROFILE\NeatTest" /E /COPY:DAT /DCOPY:T /XF desktop.ini
    $env:NEAT_DOWNLOADS = "$env:USERPROFILE\NeatTest"
    & "$env:LOCALAPPDATA\Neat\Neat.exe"
    ```
 
-   `robocopy` keeps the dates and normally the browser's source-site records too, so the copy behaves like the real folder. If the From column says "Not recorded" for everything, the copy lost them. With `NEAT_DOWNLOADS` set, Neat works only in that folder and keeps a separate history; Settings and the status strip say "Test folder". Quit Neat from the tray icon before switching back.
+   `robocopy` keeps the dates and normally the browser's source-site records too, so the copy behaves like the real folder. If the From column says "Not recorded" for everything, the copy lost them. With `NEAT_DOWNLOADS` set, Neat works only in that folder and keeps a separate history; Settings and the status strip say "Test folder". Quit Neat from the tray icon before switching back. `/XF desktop.ini` matters: without it Explorer shows the copy as a second "Downloads". If that already happened, run `Remove-Item "$env:USERPROFILE\NeatTest\desktop.ini" -Force` and `attrib -r -s "$env:USERPROFILE\NeatTest"`. When you are done testing, delete the NeatTest folder.
 4. **Real use.** Start Neat from the Start menu. It uses your real Downloads folder.
 
 Closing the window keeps Neat in the tray. Quit from the tray icon.

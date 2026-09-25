@@ -41,6 +41,13 @@
     height: 100%;
   }
 
+  /* The window never scrolls; only panes inside it do. Without this, focusing or scrolling to an
+     element that sits outside a pane scrolls the whole app up and leaves it there. */
+  #root {
+    position: relative;
+    overflow: clip;
+  }
+
   body {
     margin: 0;
     background: var(--color-ground);

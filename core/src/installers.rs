@@ -50,6 +50,8 @@ fn pe_info(path: &Path) -> Option<InstallerInfo> {
 }
 
 static VERSION: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\d+(\.\d+)+").unwrap());
+// A version in a file name, with the "v" some projects put in front: "node-v24.21.0-x64".
+static NAME_VERSION: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"(?i)(?:\bv)?(\d+(?:\.\d+)+)").unwrap());
 static CAMEL: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"([a-z])([A-Z])").unwrap());
 
 // Words that describe the installer, not the product.
@@ -59,8 +61,10 @@ const NOISE: &[&str] = &[
 ];
 
 fn from_file_name(stem: &str) -> InstallerInfo {
-    let version = VERSION.find(stem).map(|m| m.as_str().to_string());
-    let without_version = VERSION.replace_all(stem, " ");
+    // "Discord Setup (1)" is Discord, not a product called "discord 1".
+    let stem = crate::names::strip_copy_suffix(stem);
+    let version = NAME_VERSION.captures(stem).map(|c| c[1].to_string());
+    let without_version = NAME_VERSION.replace_all(stem, " ");
     let spaced = CAMEL.replace_all(&without_version, "$1 $2");
     let product = tokens(&spaced).into_iter().filter(|t| !NOISE.contains(&t.as_str())).collect::<Vec<_>>().join(" ");
     InstallerInfo { product, version }

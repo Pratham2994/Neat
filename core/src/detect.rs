@@ -484,9 +484,11 @@ fn categories(entries: &[Entry], used: &mut HashSet<usize>) -> Vec<Stack> {
 
     for (category, members) in by_category {
         let hosts = distinct_hosts(members.iter().map(|&i| &entries[i]));
-        let summary = match hosts.first() {
-            Some(h) => format!("{}, mostly from {h}", plural(members.len() as u64, category.noun().trim_end_matches('s'))),
-            None => plural(members.len() as u64, category.noun().trim_end_matches('s')),
+        let count = plural(members.len() as u64, category.noun().trim_end_matches('s'));
+        let summary = match hosts.as_slice() {
+            [] => count,
+            [only] => format!("{count} from {only}"),
+            [most, ..] => format!("{count}, mostly from {most}"),
         };
         out.push(stack(
             StackKind::Category,

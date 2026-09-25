@@ -92,6 +92,8 @@ fn downloads_round_trip() {
     age(&d.join("brand-assets"), 5 * DAY);
     // An installer for an app that is already installed at a newer version.
     write(d, "Figma-124.1.2.exe", b"not really a PE file", 40 * DAY);
+    // Named the way Node names its installers, and downloaded twice.
+    write(d, "node-v24.11.0-x64 (1).msi", b"not really an MSI", 20 * DAY);
     // A download the browser gave up on, and one still in progress.
     write(d, "dataset-full.tar.gz.crdownload", b"half", 3 * DAY);
     write(d, "ubuntu.iso.crdownload", b"in progress", 0);
@@ -107,7 +109,10 @@ fn downloads_round_trip() {
     fs::write(d.join("My Stuff/notes.txt"), b"mine").unwrap();
 
     let mut neat = Neat::open(d, tmp.path().join("neat.db")).unwrap();
-    neat.installed = vec![InstalledApp { name: "Figma".into(), version: Some("124.3.2".into()), publisher: None }];
+    neat.installed = vec![
+        InstalledApp { name: "Figma".into(), version: Some("124.3.2".into()), publisher: None },
+        InstalledApp { name: "Node.js".into(), version: Some("24.11.0".into()), publisher: None },
+    ];
     assert!(neat.scan().unwrap().last_session.is_none(), "first run has no previous visit");
     neat.mark_seen().unwrap();
 
@@ -124,6 +129,7 @@ fn downloads_round_trip() {
     assert_eq!(archive.affected().next().unwrap().name, "brand-assets.zip");
     let installers = find(stacks, StackKind::Installers, "Installers");
     assert_eq!(installers.confidence, Confidence::High);
+    assert_eq!(installers.files.len(), 2, "both installers match an installed app");
     let versions = find(stacks, StackKind::Versions, "DBMS Project Report");
     assert_eq!(versions.destination.as_deref(), Some("Documents/DBMS Project Report"));
     let stale = find(stacks, StackKind::Stale, "Large files");

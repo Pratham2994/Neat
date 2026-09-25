@@ -179,8 +179,11 @@ function BatchBar({ sure, onApply, onPreview }: { sure: Stack[]; onApply: () => 
   );
 }
 
+/** Sites the files came from, the most common first, so the column agrees with the summary. */
 function hosts(stack: Stack): string[] {
-  return [...new Set(stack.files.map((f) => f.source).filter(Boolean))] as string[];
+  const counts = new Map<string, number>();
+  for (const f of stack.files) if (f.source) counts.set(f.source, (counts.get(f.source) ?? 0) + 1);
+  return [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([host]) => host);
 }
 
 function origin(stack: Stack): string | null {
@@ -347,7 +350,7 @@ function Details({ stack, always, onAlways }: { stack: Stack; always: boolean; o
           </ul>
           <p className="mt-3 text-[12px] text-ink-3">{confidenceText[stack.confidence]}</p>
           {stack.canLearn && (
-            <label className="mt-3 flex items-center gap-2 text-[12px] text-ink-2">
+            <label className="relative mt-3 flex items-center gap-2 text-[12px] text-ink-2">
               <input type="checkbox" checked={always} onChange={(e) => onAlways(e.target.checked)} className="peer sr-only" />
               <span
                 aria-hidden
